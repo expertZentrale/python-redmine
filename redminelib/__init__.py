@@ -22,6 +22,7 @@ class Redmine:
         """
         :param string url: (required). Redmine location.
         :param string key: (optional). API key used for authentication.
+        :param string oauth_token: (optional). OAuth2 access token used for authentication (Redmine >= 6.1).
         :param string version: (optional). Redmine version.
         :param string username: (optional). Username used for authentication.
         :param string password: (optional). Password used for authentication.

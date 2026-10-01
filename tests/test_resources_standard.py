@@ -1436,6 +1436,7 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
         self.assertEqual(users[1].firstname, 'Jack')
 
     def test_user_all_url_variations(self):
+        self.assertEqual(self.redmine.user.all().manager.url, f'{self.url}/users.json?status=*')
         self.redmine.ver = (5, 0, 0)
         self.assertEqual(self.redmine.user.all().manager.url, f'{self.url}/users.json?status=')
         self.redmine.ver = (5, 1, 0)

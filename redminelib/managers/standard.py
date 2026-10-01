@@ -83,14 +83,15 @@ class UserManager(ResourceManager):
     def all(self, **params):
         resourceset = super().all(**params)
 
-        if self.redmine.ver is not None:  # https://www.redmine.org/issues/32090#note-6
-            if self.redmine.ver >= (5, 1, 2):
-                resourceset.manager.url = f'{resourceset.manager.url}*'
-            elif self.redmine.ver in ((5, 1, 0), (5, 1, 1)):
-                resourceset.manager.url = (
-                    f'{resourceset.manager.url[:-7]}f[]=status_id&'
-                    f'op[status_id]==&v[status_id][]=1&v[status_id][]=2&v[status_id][]=3'
-                )
+        # https://www.redmine.org/issues/32090#note-6, an empty status is rejected since Redmine 6.0,
+        # so an unknown version is treated as a current one
+        if self.redmine.ver is None or self.redmine.ver >= (5, 1, 2):
+            resourceset.manager.url = f'{resourceset.manager.url}*'
+        elif self.redmine.ver in ((5, 1, 0), (5, 1, 1)):
+            resourceset.manager.url = (
+                f'{resourceset.manager.url[:-7]}f[]=status_id&'
+                f'op[status_id]==&v[status_id][]=1&v[status_id][]=2&v[status_id][]=3'
+            )
 
         return resourceset
 

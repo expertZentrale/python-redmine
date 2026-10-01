@@ -53,7 +53,7 @@ a simple but powerful Pythonic API inspired by a well-known `Django ORM
 Features
 --------
 
-* Supports 100% of Redmine API
+* Supports 100% of Redmine API, up to Redmine 7.0
 * Supports external Redmine plugins API: ``redmine_expert_helpdesk``, ``redmine_expert_agile`` and the RedmineUP
   CRM, Helpdesk, Agile, Checklists and Questions plugins
 * Supports Python 3.10 - 3.14 and PyPy3

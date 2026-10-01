@@ -1,6 +1,31 @@
 Changelog
 ---------
 
+3.2.0 (2026-10-01)
+++++++++++++++++++
+
+Support for the REST API additions of Redmine 6.0 - 7.0.
+
+**New Features**:
+
+- OAuth2 access token authentication via ``Redmine(url, oauth_token='...')`` or ``redmine.session(oauth_token=...)``
+  (requires Redmine >= 6.1)
+- Group ``user.add()`` accepts a list of user ids, ``user.remove()`` too (bulk removal requires Redmine >= 7.0)
+- Issue journal ``updated_by`` (Redmine >= 6.0), custom field ``projects`` and wiki page ``project``
+  (Redmine >= 7.0) are converted to resources, wiki pages use the returned project for ``project_id`` and ``url``
+
+**Bugfixes**:
+
+- ``redmine.user.all()`` failed with a validation error on Redmine >= 6.0 unless ``version`` was configured,
+  as Redmine no longer accepts the empty ``status`` parameter. An unknown version is now treated as a current one,
+  configure ``version`` when talking to Redmine < 5.1
+
+**Documentation**:
+
+- New fields (user ``status``, ``include=['auth_source']``, custom field ``is_for_all`` and
+  ``default_value_mode``) and filters (issue ``author.group``/``author.role``, time entry ``user.group``/
+  ``user.role``, project ``updated_on``) of Redmine 6.0 - 7.0
+
 3.1.1 (2026-10-01)
 ++++++++++++++++++
 

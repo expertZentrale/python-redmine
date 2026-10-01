@@ -114,6 +114,7 @@ get
 
     - memberships
     - groups
+    - auth_source (requires Redmine >= 6.0, administrators only)
 
    :return: :ref:`Resource` object
 
@@ -173,7 +174,8 @@ all
    :module: redminelib.managers.ResourceManager
    :noindex:
 
-   Returns all User resources from Redmine.
+   Returns all User resources from Redmine, i.e. active, registered and locked ones. Since Redmine 6.0 the list
+   also contains each user's ``status`` and supports ``include=['auth_source']``.
 
    :param int limit: (optional). How much resources to return.
    :param int offset: (optional). Starting from what resource to return the other resources.

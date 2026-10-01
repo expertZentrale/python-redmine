@@ -225,15 +225,18 @@ add
    :module: redminelib.resources.Group.User
    :noindex:
 
-   Adds a user to a group by its id.
+   Adds a user or several users to a group by their ids.
 
-   :param int user_id: (required). User id.
+   :param user_id: (required). User id or a list of user ids.
+   :type user_id: int or list
    :return: True
 
 .. code-block:: python
 
    >>> group = redmine.group.get(1)
    >>> group.user.add(1)
+   True
+   >>> group.user.add([2, 3])
    True
 
 remove
@@ -243,13 +246,17 @@ remove
    :module: redminelib.resources.Group.User
    :noindex:
 
-   Removes a user from a group by its id.
+   Removes a user or several users from a group by their ids. Removing several users at once requires
+   Redmine >= 7.0.
 
-   :param int user_id: (required). User id.
+   :param user_id: (required). User id or a list of user ids.
+   :type user_id: int or list
    :return: True
 
 .. code-block:: python
 
    >>> group = redmine.group.get(1)
    >>> group.user.remove(1)
+   True
+   >>> group.user.remove([2, 3])
    True

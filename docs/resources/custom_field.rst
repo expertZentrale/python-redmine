@@ -45,7 +45,8 @@ all
    :module: redminelib.managers.ResourceManager
    :noindex:
 
-   Returns all CustomField resources from Redmine.
+   Returns all CustomField resources from Redmine. Since Redmine 7.0 issue custom fields also contain
+   ``is_for_all`` and the ``projects`` they are enabled for, date custom fields contain ``default_value_mode``.
 
    :param int limit: (optional). How much resources to return.
    :param int offset: (optional). Starting from what resource to return the other resources.

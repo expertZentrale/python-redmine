@@ -89,7 +89,8 @@ get
    :module: redminelib.managers.WikiPageManager
    :noindex:
 
-   Returns single WikiPage resource from Redmine by its title.
+   Returns single WikiPage resource from Redmine by its title. Since Redmine 7.0 the page contains its
+   ``project`` (a Project resource).
 
    :param string resource_id: (required). Title of the wiki page.
    :param project_id: (required). Id or identifier of wiki page's project.

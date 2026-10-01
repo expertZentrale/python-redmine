@@ -275,7 +275,7 @@ class IssueJournal(BaseResource):
 
     _repr = [['id']]
     _unconvertible = ['notes']
-    _resource_map = {'user': 'User'}
+    _resource_map = {'user': 'User', 'updated_by': 'User'}
 
 
 class WikiPage(BaseResource):
@@ -300,7 +300,7 @@ class WikiPage(BaseResource):
     _unconvertible = BaseResource._unconvertible + ['title', 'text']
     _create_readonly = BaseResource._create_readonly + ['version']
     _update_readonly = _create_readonly[:]
-    _resource_map = {'author': 'User'}
+    _resource_map = {'author': 'User', 'project': 'Project'}
     _resource_set_map = {'attachments': 'Attachment'}
     _single_attr_id_map = {'project_id': 'project'}
 
@@ -328,7 +328,8 @@ class WikiPage(BaseResource):
 
     @property
     def project_id(self):
-        return self.manager.params.get('project_id', 0)
+        # Redmine >= 7.0 returns the page's project, older ones only know it from the request
+        return self.manager.params.get('project_id') or (self._decoded_attrs.get('project') or {}).get('id', 0)
 
     @property
     def url(self):
@@ -489,19 +490,29 @@ class Group(BaseResource):
 
         def add(self, user_id):
             """
-            Adds user to a group.
+            Adds user or users to a group.
 
-            :param int user_id: (required). User id.
+            :param user_id: (required). User id or a list of user ids.
+            :type user_id: int or list
             """
             url = f'{self._redmine.url}/groups/{self._group_id}/users.json'
-            return self._redmine.engine.request('post', url, data={'user_id': user_id})
+            data = {'user_ids': list(user_id)} if isinstance(user_id, (list, tuple)) else {'user_id': user_id}
+            return self._redmine.engine.request('post', url, data=data)
 
         def remove(self, user_id):
             """
-            Removes user from a group.
+            Removes user or users from a group, removing several users at once requires Redmine >= 7.0.
 
-            :param int user_id: (required). User id.
+            :param user_id: (required). User id or a list of user ids.
+            :type user_id: int or list
             """
+            if isinstance(user_id, (list, tuple)):
+                if self._redmine.ver is not None and self._redmine.ver < (7, 0, 0):
+                    raise exceptions.VersionMismatchError('Group users bulk removal')
+
+                url = f'{self._redmine.url}/groups/{self._group_id}/users.json'
+                return self._redmine.engine.request('delete', url, params={'user_ids[]': list(user_id)})
+
             url = f'{self._redmine.url}/groups/{self._group_id}/users/{user_id}.json'
             return self._redmine.engine.request('delete', url)
 
@@ -584,7 +595,7 @@ class CustomField(BaseResource):
     query_all = '/custom_fields.json'
     query_url = '/custom_fields/{}/edit'
 
-    _resource_set_map = {'trackers': 'Tracker', 'roles': 'Role'}
+    _resource_set_map = {'trackers': 'Tracker', 'roles': 'Role', 'projects': 'Project'}
 
     def __getattr__(self, attr):
         # If custom field was created after the creation of the resource,

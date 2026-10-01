@@ -53,7 +53,7 @@ a simple but powerful Pythonic API inspired by a well-known `Django ORM
 Features
 --------
 
-* Supports 100% of Redmine API
+* Supports 100% of Redmine API, up to Redmine 7.0
 * Supports external Redmine plugins API: ``redmine_expert_helpdesk``, ``redmine_expert_agile`` and the RedmineUP
   CRM, Helpdesk, Agile, Checklists and Questions plugins
 * Supports Python 3.10 - 3.14 and PyPy3
@@ -73,15 +73,15 @@ Then install a released version, either the wheel attached to the
 .. code-block:: bash
 
    $ pip uninstall python-redmine
-   $ pip install https://github.com/expertZentrale/python-redmine/releases/download/v3.1.1/python_redmine_expert-3.1.1-py3-none-any.whl
+   $ pip install https://github.com/expertZentrale/python-redmine/releases/download/v3.2.0/python_redmine_expert-3.2.0-py3-none-any.whl
    # or
-   $ pip install "python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.1.1"
+   $ pip install "python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.2.0"
 
 In a ``requirements.txt`` or ``pyproject.toml`` pin the tag the same way:
 
 .. code-block:: text
 
-   python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.1.1
+   python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.2.0
 
 Usage
 -----

@@ -50,7 +50,7 @@ have a version of 5.0.4.stable.21982, Python-Redmine needs only the 5.0.4:
 Authentication
 ++++++++++++++
 
-Most of the time the API requires authentication. It can be done in 2 different ways:
+Most of the time the API requires authentication. It can be done in 3 different ways:
 
 * using user's regular login and password:
 
@@ -66,6 +66,17 @@ Most of the time the API requires authentication. It can be done in 2 different 
 
 The API key can be found on users account page when logged in, on the right-hand pane of
 the default layout.
+
+* using an OAuth2 access token (requires Redmine >= 6.1 and Python-Redmine >= 3.2.0):
+
+.. code-block:: python
+
+   redmine = Redmine('https://redmine.url', oauth_token='GmT0Zl7O3Ih8b1CrrQb0Q1yGxFPOpZTp1cJbZm8Umts')
+
+Access tokens are issued by an OAuth2 application registered under Administration -> Applications. A token
+only grants the permissions of its scopes, e.g. an administrator using a token without the ``admin`` scope
+acts like a regular user, and Redmine doesn't return API keys to OAuth sessions. Like all options it can also
+be used for a :doc:`session <advanced/request_engines>`: ``with redmine.session(oauth_token='...'):``.
 
 Impersonation
 +++++++++++++

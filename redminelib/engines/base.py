@@ -14,6 +14,7 @@ class BaseEngine:
     def __init__(self, **options):
         """
         :param string key: (optional). API key used for authentication.
+        :param string oauth_token: (optional). OAuth2 access token used for authentication (Redmine >= 6.1).
         :param string username: (optional). Username used for authentication.
         :param string password: (optional). Password used for authentication.
         :param dict requests: (optional). Connection options.
@@ -36,6 +37,8 @@ class BaseEngine:
         # We would like to be authenticated by API key by default
         if options.get('key') is not None:
             self.requests['headers']['X-Redmine-API-Key'] = options['key']
+        elif options.get('oauth_token') is not None:
+            self.requests['headers']['Authorization'] = f'Bearer {options["oauth_token"]}'
         elif options.get('username') is not None and options.get('password') is not None:
             self.requests['auth'] = (options['username'], options['password'])
 

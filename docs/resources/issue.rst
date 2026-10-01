@@ -513,6 +513,22 @@ Copying
    >>> copy
    <redminelib.resources.Issue #124 "this is a copy">
 
+Filters added in newer Redmine versions
+---------------------------------------
+
+All issue, time entry and project filters of the Redmine web interface can be used with ``filter()``. Filters
+whose names contain a dot have to be passed as a dict:
+
+.. code-block:: python
+
+   >>> redmine.issue.filter(project_id='vacation', **{'author.group': 5, 'author.role': 3})
+   >>> redmine.time_entry.filter(**{'user.group': 5})
+   >>> redmine.project.filter(updated_on='>t-7')
+
+Redmine 6.0+ adds ``author.group`` and ``author.role`` for issues, ``user.group`` and ``user.role`` for time
+entries and ``updated_on`` for projects. ``estimated_hours``, ``spent_time`` and the time entry ``hours``
+filters accept the time formats Redmine accepts elsewhere, e.g. ``1:30``.
+
 RedmineUP plugin extensions
 ---------------------------
 
@@ -626,8 +642,9 @@ Export
 Journals
 --------
 
-The history of an issue is represented as a :ref:`ResourceSet` of ``IssueJournal`` resources.
-Currently the following operations are possible:
+The history of an issue is represented as a :ref:`ResourceSet` of ``IssueJournal`` resources. Since
+Redmine 6.0 a journal whose notes were edited also contains ``updated_on`` and ``updated_by`` (a User
+resource). Currently the following operations are possible:
 
 create
 ++++++
