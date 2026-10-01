@@ -11,6 +11,21 @@ from .expert import (
     HelpdeskProjectSetting,
     HelpdeskTicket,
 )
+from .redmineup import (
+    AgileData,
+    AgileSprint,
+    Checklist,
+    Contact,
+    ContactTag,
+    CrmQuery,
+    Deal,
+    DealCategory,
+    DealStatus,
+    Note,
+    QuestionsStatus,
+    Ticket,
+    TicketJournal,
+)
 from .standard import (
     Attachment,
     CustomField,

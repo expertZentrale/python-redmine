@@ -45,6 +45,11 @@ class IssueManager(ResourceManager):
 
             request['helpdesk_init'] = helpdesk_init
 
+        # redmine_contacts_helpdesk reads these next to the issue container
+        for param in ('helpdesk_send_as', 'customer_id', 'customer_address'):
+            if param in request[self.container]:
+                request[param] = request[self.container].pop(param)
+
         return request
 
 

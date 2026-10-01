@@ -180,6 +180,10 @@ class Issue(BaseResource):
         elif attr == 'assigned_to_id' and value in (None, 0):
             return attr, ''
         elif attr == 'checklists':
+            # redmine_checklists crashes on issue update with an array, an index keyed hash works everywhere
+            if isinstance(value, (list, tuple)):
+                value = {str(index): item for index, item in enumerate(value)}
+
             return 'checklists_attributes', value
 
         return super().decode(attr, value, manager)
