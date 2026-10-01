@@ -191,7 +191,8 @@ delete
    :module: redminelib.managers.ResourceManager
    :noindex:
 
-   Deletes a HelpdeskTicket and its issue, message history is kept but unlinked.
+   Deletes a HelpdeskTicket together with its issue and helpdesk messages (since plugin 0.20.1, before that
+   messages were unlinked). The same happens when the issue is deleted through Redmine itself.
 
    :param int resource_id: (required). Ticket id.
    :return: True

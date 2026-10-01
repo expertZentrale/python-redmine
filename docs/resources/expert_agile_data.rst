@@ -98,7 +98,8 @@ save
 
 .. hint::
 
-   Agile data can also be set when creating or updating an issue:
+   Agile data can also be set when creating or updating an issue (creating requires plugin >= 0.6.1,
+   older versions reject it with "Issue cannot be blank"):
 
    .. code-block:: python
 

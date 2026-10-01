@@ -538,7 +538,7 @@ The ``redmine_expert_helpdesk`` and ``redmine_expert_agile`` plugins extend the 
      ... )
 
 * ``create()`` and ``update()`` accept ``expert_agile_data_attributes`` with ``story_points`` and
-  ``sprint_id``, see :doc:`expert_agile_data`.
+  ``sprint_id``, see :doc:`expert_agile_data` (on ``create()`` requires ``redmine_expert_agile`` >= 0.6.1).
 * ``filter()`` supports the additional filters ``helpdesk_kunde`` (customer name or email),
   ``helpdesk_sla_reaction`` and ``helpdesk_sla_solution`` (``met``, ``breached_done``, ``running``,
   ``warning``, ``breached``), ``helpdesk_awaiting_agent`` (``1``/``0``) and ``story_points``:
