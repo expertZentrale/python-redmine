@@ -90,6 +90,12 @@ get
    >>> sprint.issues
    <redminelib.resultsets.ResourceSet object with Issue resources>
 
+.. warning::
+
+   In a live test with Agile 1.6.14 the plugin returned ``story_points`` and ``estimated_hours`` of the sprint's
+   issues as null (and the sprint total as 0) although the issues had them. Read story points per issue from
+   :doc:`agile_data` instead of relying on the sprint totals.
+
 all
 +++
 

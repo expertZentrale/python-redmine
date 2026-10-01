@@ -73,15 +73,15 @@ Then install a released version, either the wheel attached to the
 .. code-block:: bash
 
    $ pip uninstall python-redmine
-   $ pip install https://github.com/expertZentrale/python-redmine/releases/download/v3.1.0/python_redmine_expert-3.1.0-py3-none-any.whl
+   $ pip install https://github.com/expertZentrale/python-redmine/releases/download/v3.1.1/python_redmine_expert-3.1.1-py3-none-any.whl
    # or
-   $ pip install "python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.1.0"
+   $ pip install "python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.1.1"
 
 In a ``requirements.txt`` or ``pyproject.toml`` pin the tag the same way:
 
 .. code-block:: text
 
-   python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.1.0
+   python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.1.1
 
 Usage
 -----

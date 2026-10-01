@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+3.1.1 (2026-10-01)
+++++++++++++++++++
+
+**Improvements**:
+
+- The RedmineUP Agile, Checklists and Questions resources have now also been verified against a live Redmine
+  with the plugins installed (Agile 1.6.14, Checklists 4.0.2, Questions 1.0.10), no changes were needed.
+  The documentation notes the plugin behaviour found on the way, e.g. that Agile's sprint totals are
+  unreliable and story points should be read per issue.
+
 3.1.0 (2026-10-01)
 ++++++++++++++++++
 

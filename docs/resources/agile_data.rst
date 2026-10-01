@@ -42,7 +42,8 @@ Changing agile data
 -------------------
 
 Story points and sprint are set through the issue with ``agile_data_attributes``. ``agile_sprint_id`` is
-silently dropped by the plugin without the ``manage_sprints`` permission:
+silently dropped by the plugin without the ``manage_sprints`` permission. Story points and sprints have to be
+enabled in the plugin settings to show up on boards and in totals:
 
 .. code-block:: python
 
