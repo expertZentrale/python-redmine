@@ -2,50 +2,59 @@ name: Tests
 
 on:
   push:
-    paths: ['.github/workflows/tests.yml', 'redminelib/**', 'tests/**']
+    paths: ['.github/workflows/tests.yml', 'pyproject.toml', 'redminelib/**', 'tests/**']
   pull_request:
-    paths: ['.github/workflows/tests.yml', 'redminelib/**', 'tests/**']
+    paths: ['.github/workflows/tests.yml', 'pyproject.toml', 'redminelib/**', 'tests/**']
 
 permissions:
   contents: read
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install ruff
+      - run: ruff check .
+      - run: ruff format --check .
+
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12', 'pypy3.7', 'pypy3.8', 'pypy3.9', 'pypy3.10']
-        os: [ubuntu-latest, macos-13, windows-latest]
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14', 'pypy3.10', 'pypy3.11']
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
           cache: 'pip'
-          cache-dependency-path: 'tests/requirements.txt'
-      - name: Install dependencies
-        run: |
-          pip install -r tests/requirements.txt
-          pip install coveralls
+          cache-dependency-path: 'pyproject.toml'
+      - name: Install package
+        run: pip install -e .[test]
       - name: Run tests
-        run: pytest --cov-config=.coveragerc --cov=redminelib
-      - name: Post coverage to Coveralls
-        run: coveralls --service=github
-        env:
-          COVERALLS_PARALLEL: true
-          COVERALLS_FLAG_NAME: ${{ matrix.os }}-${{ matrix.python-version }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pytest
 
-  coveralls:
-    name: Indicate completion to Coveralls
-    needs: test
+  build:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - run: |
-          pip install coveralls
-          coveralls --service=github --finish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install build twine
+      - run: python -m build
+      - run: twine check --strict dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
