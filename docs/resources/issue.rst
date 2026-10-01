@@ -512,6 +512,42 @@ Copying
    >>> copy
    <redminelib.resources.Issue #124 "this is a copy">
 
+Expert plugin extensions
+------------------------
+
+.. versionadded:: 3.0.0
+
+The ``redmine_expert_helpdesk`` and ``redmine_expert_agile`` plugins extend the core issue API:
+
+* ``create()`` accepts ``helpdesk_init`` to turn a new issue into a helpdesk ticket and optionally send
+  the initial mail (requires the ``send_helpdesk_reply`` permission). Python-Redmine sends it next to the
+  issue data as the plugin expects and converts ``send_mail`` booleans to the expected ``'1'``/``'0'``:
+
+  .. code-block:: python
+
+     >>> redmine.issue.create(
+     ...     project_id='support',
+     ...     subject='Printer on fire',
+     ...     helpdesk_init={
+     ...         'contact_email': 'jane@example.com',
+     ...         'contact_name': 'Jane Doe',
+     ...         'mailbox_id': 7,
+     ...         'cc': 'boss@example.com',
+     ...         'send_mail': True,
+     ...     }
+     ... )
+
+* ``create()`` and ``update()`` accept ``expert_agile_data_attributes`` with ``story_points`` and
+  ``sprint_id``, see :doc:`expert_agile_data`.
+* ``filter()`` supports the additional filters ``helpdesk_kunde`` (customer name or email),
+  ``helpdesk_sla_reaction`` and ``helpdesk_sla_solution`` (``met``, ``breached_done``, ``running``,
+  ``warning``, ``breached``), ``helpdesk_awaiting_agent`` (``1``/``0``) and ``story_points``:
+
+  .. code-block:: python
+
+     >>> redmine.issue.filter(project_id='support', helpdesk_kunde='~acme', helpdesk_awaiting_agent=1)
+     >>> redmine.issue.filter(project_id='scrum', story_points='>=3')
+
 Export
 ------
 

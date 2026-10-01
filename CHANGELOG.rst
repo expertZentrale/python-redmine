@@ -1,8 +1,30 @@
 Changelog
 ---------
 
-2.6.0 (XXXX-XX-XX)
+3.0.0 (2026-10-01)
 ++++++++++++++++++
+
+First release of the expert fork, distributed as ``python-redmine-expert``. The import name ``redminelib``
+is unchanged, so it is a drop-in replacement for ``python-redmine`` 2.5.0.
+
+**Changes**:
+
+- Distribution renamed to ``python-redmine-expert``, maintained by expert Zentrale after upstream development
+  stopped
+- Python 3.10 - 3.14 and PyPy3 are supported, Python 3.7 - 3.9 support has been dropped
+- Requires ``requests`` >= 2.32
+- Packaging moved from ``setup.py`` to ``pyproject.toml``, code is linted and formatted with ruff
+- Removed Pro Edition documentation, licensing and payment information, as Pro Edition code is not part of this fork
+
+**New Features**:
+
+- Support for the ``redmine_expert_helpdesk`` plugin: ``HelpdeskTicket``, ``HelpdeskContact``,
+  ``HelpdeskMailbox`` (incl. ``test_connection()``) and ``HelpdeskProjectSetting`` resources, ``helpdesk_init``
+  on issue creation
+- Support for the ``redmine_expert_agile`` plugin: ``ExpertAgileSprint`` and ``ExpertAgileData`` resources
+
+2.6.0 (never released upstream, included in 3.0.0)
+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 **Improvements**:
 
