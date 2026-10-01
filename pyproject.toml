@@ -39,6 +39,7 @@ docs = ["sphinx>=7", "sphinxcontrib-jquery", "alabaster"]
 dev = ["python-redmine-expert[test,docs]", "ruff>=0.6", "build", "twine"]
 
 [project.urls]
+Documentation = "https://expertzentrale.github.io/python-redmine/"
 Source = "https://github.com/expertZentrale/python-redmine"
 Changelog = "https://github.com/expertZentrale/python-redmine/blob/master/CHANGELOG.rst"
 Upstream = "https://github.com/maxtepkeev/python-redmine"

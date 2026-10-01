@@ -134,14 +134,14 @@ Connect with an API key (*My account* → *API access key*, the REST web service
                         expert_agile_data_attributes={'story_points': 3})
    redmine.issue.filter(project_id='scrum', story_points='>=3')
 
-See the documentation for every resource, method and parameter.
+See the `documentation <https://expertzentrale.github.io/python-redmine/>`__ for every resource, method and parameter.
 
 Documentation
 -------------
 
-The full documentation is in the ``docs`` directory (resources under ``docs/resources``). Build it locally
-with ``pip install -e '.[docs]' && sphinx-build -b html docs docs/_build`` and open
-``docs/_build/index.html``; every CI run also attaches the built HTML as the ``docs-html`` artifact.
+The full documentation is published at https://expertzentrale.github.io/python-redmine/ for every change on
+``master``. Its sources are in the ``docs`` directory; build them locally with
+``pip install -e '.[docs]' && sphinx-build -b html docs docs/_build``.
 
 Development
 -----------
