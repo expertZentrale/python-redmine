@@ -35,6 +35,16 @@ class IssueManager(ResourceManager):
     def _prepare_create_request(self, request):
         request = super()._prepare_create_request(request)
         request.update(request[self.container].pop('_copy', {}))
+
+        # redmine_expert_helpdesk expects helpdesk_init as a sibling of the issue container
+        if 'helpdesk_init' in request[self.container]:
+            helpdesk_init = dict(request[self.container].pop('helpdesk_init'))
+
+            if isinstance(helpdesk_init.get('send_mail'), bool):
+                helpdesk_init['send_mail'] = '1' if helpdesk_init['send_mail'] else '0'
+
+            request['helpdesk_init'] = helpdesk_init
+
         return request
 
 

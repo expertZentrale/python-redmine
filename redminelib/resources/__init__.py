@@ -3,6 +3,14 @@ Defines Redmine resources.
 """
 
 from .base import BaseResource, registry
+from .expert import (
+    ExpertAgileData,
+    ExpertAgileSprint,
+    HelpdeskContact,
+    HelpdeskMailbox,
+    HelpdeskProjectSetting,
+    HelpdeskTicket,
+)
 from .standard import (
     Attachment,
     CustomField,
