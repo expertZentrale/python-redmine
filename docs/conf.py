@@ -25,8 +25,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Python-Redmine'
-project_copyright = f'{datetime.date.today().year}, Maxim Tepkeev'
+project = 'Python-Redmine (expert fork)'
+project_copyright = f'{datetime.date.today().year}, Maxim Tepkeev, expert Zentrale'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -44,13 +44,12 @@ html_theme = 'alabaster'
 # documentation.
 html_theme_options = {
     'logo': 'img/logo.png',
-    'github_user': 'maxtepkeev',
+    'github_user': 'expertZentrale',
     'github_repo': 'python-redmine',
     'github_type': 'star',
     'github_banner': 'true',
     'show_powered_by': 'false',
     'page_width': '1008px',
-    'analytics_id': 'UA-97216617-1',
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

@@ -145,18 +145,6 @@ get
    * files
    * issues
    * time_entries
-   * deals (requires Pro Edition and `CRM plugin <https://www.redmineup.com/pages/plugins/crm>`_)
-   * contacts (requires Pro Edition and `CRM plugin <https://www.redmineup.com/pages/plugins/crm>`_)
-   * deal_categories (requires Pro Edition and `CRM plugin <https://www.redmineup.com/pages/plugins/crm>`_
-     >= 3.3.0)
-   * invoices (requires Pro Edition and `Invoices plugin <https://www.redmineup.com/pages/plugins/invoices>`_
-     >= 4.1.3)
-   * expenses (requires Pro Edition and `Invoices plugin <https://www.redmineup.com/pages/plugins/invoices>`_
-     >= 4.1.3)
-   * products (requires Pro Edition and `Products plugin <https://www.redmineup.com/pages/plugins/products>`_
-     >= 2.1.5)
-   * orders (requires Pro Edition and `Products plugin <https://www.redmineup.com/pages/plugins/products>`_
-     >= 2.1.5)
 
    .. code-block:: python
 

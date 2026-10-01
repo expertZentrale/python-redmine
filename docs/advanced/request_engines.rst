@@ -16,7 +16,7 @@ Engines
 Sync
 ++++
 
-Default engine in Standard Edition. Requests are made in a sequential fashion, i.e. one by one. There
+Default engine. Requests are made in a sequential fashion, i.e. one by one. There
 is nothing to do to use it, but just for the purpose of example, this is how we can explicitly ask
 Python-Redmine to use it:
 
@@ -25,41 +25,6 @@ Python-Redmine to use it:
    from redminelib import engines, Redmine
 
    redmine = Redmine('https://redmine.url', engine=engines.SyncEngine)
-
-Thread
-++++++
-
-*Available only in Pro Edition*.
-
-Default engine in Pro Edition. Requests are made in an asynchronous fashion using Python threads. The
-amount of threads is calculated by Python-Redmine automatically, but can be adjusted manually passing
-``workers`` argument to the ``Redmine`` class:
-
-.. code-block:: python
-
-   from redminelib import engines, Redmine
-
-   redmine = Redmine('https://redmine.url', engine=engines.ThreadEngine, workers=4)
-
-Process
-+++++++
-
-*Available only in Pro Edition*.
-
-Requests are made in an asynchronous fashion using Python processes. The amount of processes is
-calculated by Python-Redmine automatically, but can be adjusted manually passing ``workers`` argument
-to the ``Redmine`` class:
-
-.. code-block:: python
-
-   from redminelib import engines, Redmine
-
-   redmine = Redmine('https://redmine.url', engine=engines.ProcessEngine, workers=4)
-
-.. note::
-
-   Please keep in mind that currently only read operations are possible using async engines, all other
-   types of operations, i.e. create/update/delete are made using sync engine.
 
 Session
 -------
@@ -76,11 +41,10 @@ be redefined are as follows:
 * **ignore_response**. If True no response processing will be done at all.
 * **return_response**. Whether to return response or None.
 * **return_raw_response**. Whether to return raw or json encoded response.
-* **workers**. How many workers to use. *Available only in Pro Edition*.
 
 .. code-block:: python
 
-   with redmine.session(workers=24):
+   with redmine.session(ignore_response=True):
        issues = redmine.issue.all()
        projects = redmine.project.all()
 

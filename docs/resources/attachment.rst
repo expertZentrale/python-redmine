@@ -40,8 +40,7 @@ get
 
    Attachment can be easily downloaded via the provided ``download()`` method which is a proxy
    to the ``redmine.download()`` method which provides several options to control the saving
-   process (see `docs <https://python-redmine.com/advanced/working_with_files.html#
-   download>`_ for details):
+   process (see :doc:`../advanced/working_with_files` for details):
 
    .. code-block:: python
 

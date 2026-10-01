@@ -1,14 +1,15 @@
-Python-Redmine
-==============
+Python-Redmine (expert fork)
+============================
 
-.. image:: https://badge.fury.io/py/python-redmine.svg
-   :target: https://badge.fury.io/py/python-redmine
+|Tests|
 
-.. image:: https://img.shields.io/github/actions/workflow/status/maxtepkeev/python-redmine/tests.yml.svg
-   :target: https://github.com/maxtepkeev/python-redmine/actions/workflows/tests.yml
+.. |Tests| image:: https://img.shields.io/github/actions/workflow/status/expertZentrale/python-redmine/tests.yml.svg
+   :target: https://github.com/expertZentrale/python-redmine/actions/workflows/tests.yml
 
-.. image:: https://img.shields.io/coverallsCoverage/github/maxtepkeev/python-redmine?branch=master
-   :target: https://coveralls.io/github/maxtepkeev/python-redmine?branch=master
+This is the expert fork of `Python-Redmine <https://github.com/maxtepkeev/python-redmine>`__, maintained for
+internal use after upstream development stopped. It is distributed as ``python-redmine-expert`` while keeping the
+``redminelib`` import name, so it is a drop-in replacement for ``python-redmine``. On top of upstream it adds
+support for the ``redmine_expert_helpdesk`` and ``redmine_expert_agile`` plugins.
 
 Python-Redmine is a library for communicating with a `Redmine <http://www.redmine.org>`__
 project management application. Redmine exposes some data via `REST API
@@ -53,26 +54,18 @@ Features
 --------
 
 * Supports 100% of Redmine API
-* Supports external Redmine plugins API
-* Supports Python 3.7 - 3.12 and PyPy3
+* Supports external Redmine plugins API, including ``redmine_expert_helpdesk`` and ``redmine_expert_agile``
+* Supports Python 3.10 - 3.14 and PyPy3
 * Supports different request engines
 * Extendable via custom resources and custom request engines
 * Extensively documented
 * Provides ORM-style Pythonic API
 * And many more...
 
-Contacts and Support
---------------------
-
-Support for Standard Edition is provided via `GitHub <https://github.com/maxtepkeev/python-redmine/issues>`__
-only, while support for Pro Edition is provided both via `GitHub <https://github.com/maxtepkeev/python-redmine/issues>`__
-and support@python-redmine.com. Be sure to write from email that was specified during the purchase procedure.
-
 Copyright and License
 ---------------------
 
-Python-Redmine Standard Edition is licensed under Apache 2.0 license. Python-Redmine Pro Edition is licensed
-under the Python-Redmine Pro Edition 1.0 license. Check the :doc:`license` for details.
+Licensed under the Apache 2.0 license. Check the :doc:`license` for details.
 
 Table of contents
 -----------------
@@ -80,7 +73,6 @@ Table of contents
 .. toctree::
    :maxdepth: 3
 
-   editions
    installation
    configuration
    introduction
