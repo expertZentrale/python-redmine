@@ -145,6 +145,8 @@ get
    * files
    * issues
    * time_entries
+   * contacts, deals, deal_categories (require the RedmineUP CRM plugin, see :doc:`contact`, :doc:`deal`,
+     :doc:`deal_category`)
 
    .. code-block:: python
 

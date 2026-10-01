@@ -1,6 +1,32 @@
 Changelog
 ---------
 
+3.1.0 (2026-10-01)
+++++++++++++++++++
+
+**New Features**:
+
+- Support for the RedmineUP plugins, following the API of the former Python-Redmine Pro Edition where it had one,
+  so code written for it keeps working:
+
+  - CRM (``redmine_contacts``): ``Contact`` (incl. ``contact.project.add()/remove()``), ``ContactTag``, ``Note``,
+    ``Deal``, ``DealStatus``, ``DealCategory`` and ``CrmQuery`` resources, ``contacts``, ``deals`` and
+    ``deal_categories`` relations on projects and users
+  - Helpdesk (``redmine_contacts_helpdesk``): ``Ticket`` and ``TicketJournal`` resources incl. ``ticket.reply()``,
+    helpdesk parameters on issue creation
+  - Agile (``redmine_agile``): ``AgileSprint`` and ``AgileData`` resources (new, Pro Edition never had them)
+  - Checklists (``redmine_checklists``): ``Checklist`` resource and ``checklists`` relation on issues
+  - Questions (``redmine_questions``): ``QuestionsStatus`` resource, the only part of the plugin that has an API
+
+**Changes**:
+
+- Issue ``checklists`` are sent as an index keyed hash instead of a list, as redmine_checklists fails on
+  issue update with a list
+- Behaviour is modelled on the plugin sources (CRM 4.4.7, Helpdesk 4.2.10, Agile 1.6.14, Checklists 4.0.2,
+  Questions 1.0.10) and works around their quirks, e.g. deal prices are sent as strings, ``deal.all()``
+  includes closed deals, note dates in RFC 822 are parsed, agile sprint updates answering with a redirect are
+  treated as success. Each resource's documentation lists what the plugin does and doesn't support.
+
 3.0.0 (2026-10-01)
 ++++++++++++++++++
 

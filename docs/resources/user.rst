@@ -158,6 +158,7 @@ get
    * issues (alias to issues_assigned)
    * issues_assigned (requires Python-Redmine v2.5.0)
    * issues_authored (requires Python-Redmine v2.5.0)
+   * contacts, deals (assigned to the user, require the RedmineUP CRM plugin)
 
    .. code-block:: python
 

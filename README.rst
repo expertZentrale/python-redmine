@@ -54,7 +54,8 @@ Features
 --------
 
 * Supports 100% of Redmine API
-* Supports external Redmine plugins API, including ``redmine_expert_helpdesk`` and ``redmine_expert_agile``
+* Supports external Redmine plugins API: ``redmine_expert_helpdesk``, ``redmine_expert_agile`` and the RedmineUP
+  CRM, Helpdesk, Agile, Checklists and Questions plugins
 * Supports Python 3.10 - 3.14 and PyPy3
 * Supports different request engines
 * Extendable via custom resources and custom request engines
@@ -72,15 +73,15 @@ Then install a released version, either the wheel attached to the
 .. code-block:: bash
 
    $ pip uninstall python-redmine
-   $ pip install https://github.com/expertZentrale/python-redmine/releases/download/v3.0.0/python_redmine_expert-3.0.0-py3-none-any.whl
+   $ pip install https://github.com/expertZentrale/python-redmine/releases/download/v3.1.0/python_redmine_expert-3.1.0-py3-none-any.whl
    # or
-   $ pip install "python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.0.0"
+   $ pip install "python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.1.0"
 
 In a ``requirements.txt`` or ``pyproject.toml`` pin the tag the same way:
 
 .. code-block:: text
 
-   python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.0.0
+   python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.1.0
 
 Usage
 -----
@@ -133,6 +134,22 @@ Connect with an API key (*My account* → *API access key*, the REST web service
    redmine.issue.create(project_id='scrum', subject='New story',
                         expert_agile_data_attributes={'story_points': 3})
    redmine.issue.filter(project_id='scrum', story_points='>=3')
+
+RedmineUP plugins (CRM, Helpdesk, Agile, Checklists, Questions), with the same API as the former Pro Edition:
+
+.. code-block:: python
+
+   contact = redmine.contact.create(project_id='sales', first_name='Ivan', last_name='Ivanov',
+                                    emails=['ivan@example.com'], tag_list=['vip'])
+   redmine.deal.create(project_id='sales', name='Big deal', price=1000, contact_id=contact.id, status_id=1)
+   redmine.note.create(project_id='sales', source_type='Contact', source_id=contact.id, content='Called him')
+
+   ticket = redmine.ticket.create(issue={'project_id': 'support', 'subject': 'Printer on fire'},
+                                  contact={'email': 'ivan@example.com'}, source='phone')
+   ticket.reply(content='We are on it')
+
+   redmine.checklist.create(issue_id=42, subject='Passport')
+   redmine.agile_sprint.filter(project_id='scrum')
 
 See the `documentation <https://expertzentrale.github.io/python-redmine/>`__ for every resource, method and parameter.
 

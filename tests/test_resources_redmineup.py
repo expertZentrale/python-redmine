@@ -113,7 +113,7 @@ class RedmineUPResourcesTestCase(BaseRedmineTestCase):
             self.request_data(),
             {
                 'contact': {'first_name': 'Ivan'},
-                'attachments': [{'token': '123456', 'filename': 'ivan.jpg', 'description': 'avatar'}],
+                'attachments': {'1': {'token': '123456', 'filename': 'ivan.jpg', 'description': 'avatar'}},
             },
         )
 
@@ -128,7 +128,7 @@ class RedmineUPResourcesTestCase(BaseRedmineTestCase):
             self.request_data(),
             {
                 'contact': {'job_title': 'CEO'},
-                'attachments': [{'token': 'abc', 'filename': 'a.png', 'description': 'avatar'}],
+                'attachments': {'1': {'token': 'abc', 'filename': 'a.png', 'description': 'avatar'}},
             },
         )
         self.assertEqual(contact.delete(), True)
@@ -204,7 +204,7 @@ class RedmineUPResourcesTestCase(BaseRedmineTestCase):
         )
         self.assertEqual(
             self.request_data()['attachments'],
-            [{'token': '1', 'filename': 'avatar', 'description': 'avatar', 'content_type': 'image/png'}],
+            {'1': {'token': '1', 'filename': 'avatar', 'description': 'avatar', 'content_type': 'image/png'}},
         )
 
     def test_note_unknown_source_type_and_bad_date(self):
@@ -400,7 +400,9 @@ class RedmineUPResourcesTestCase(BaseRedmineTestCase):
         self.assertEqual(len(self.redmine.ticket.all(limit=50)), 2)
         self.assertRequest('get', '/helpdesk_tickets.json')
         list(self.redmine.ticket.filter(source='phone', from_address='client@mail.com'))
-        self.assertEqual(self.request_params()['source'], 2)
+        self.assertEqual(self.request_params()['source'], '2')
+        list(self.redmine.ticket.filter(source=4))
+        self.assertEqual(self.request_params()['source'], '4')
 
     def test_ticket_create(self):
         self.response.status_code = 201
@@ -440,6 +442,7 @@ class RedmineUPResourcesTestCase(BaseRedmineTestCase):
         ticket.save(to_address='other@product.com')
         self.assertRequest('put', '/helpdesk_tickets/42.json')
         self.assertEqual(self.request_data(), {'helpdesk_ticket': {'to_address': 'other@product.com'}})
+        self.assertEqual(self.redmine.ticket.update(42, is_incoming=False), True)
 
         with self.assertRaises(exceptions.ReadonlyAttrError):
             ticket.issue = {}

@@ -168,6 +168,7 @@ get
 
    * relations
    * time_entries
+   * checklists (requires the RedmineUP Checklists plugin, see :doc:`checklist`)
 
    .. code-block:: python
 
@@ -511,6 +512,36 @@ Copying
    >>> copy = issue.copy(subject='this is a copy')
    >>> copy
    <redminelib.resources.Issue #124 "this is a copy">
+
+RedmineUP plugin extensions
+---------------------------
+
+.. versionadded:: 3.1.0
+
+The RedmineUP plugins extend the core issue API:
+
+* **Checklists**: ``create()`` and ``update()`` accept ``checklists`` with a list of
+  ``{'subject': ..., 'is_done': ..., 'is_section': ...}`` dicts. Python-Redmine sends them as the index keyed
+  ``checklists_attributes`` hash the plugin needs on update. New items are added, pass ``id`` to change an item
+  and ``'_destroy': '1'`` to remove one. Filters: ``checklists_status`` (``1`` done, ``0`` undone) and
+  ``checklists_item`` (subject).
+
+  .. code-block:: python
+
+     >>> redmine.issue.create(project_id='vacation', subject='Packing', checklists=[
+     ...     {'subject': 'Passport', 'is_done': True},
+     ...     {'subject': 'Sunscreen'},
+     ... ])
+
+* **Agile**: ``agile_data_attributes`` with ``story_points`` and ``agile_sprint_id``, see :doc:`agile_data`.
+  Filter: ``agile_sprints`` (sprint id).
+* **Helpdesk**: ``create()`` accepts ``helpdesk_ticket_attributes`` (``from_address``, ``to_address``,
+  ``cc_address``, ``ticket_date``, ``source``, ...), ``customer_id``, ``customer_address`` and ``helpdesk_send_as``
+  (``1`` auto answer, ``2`` initial message). Python-Redmine sends the last three next to the issue data as the
+  plugin expects. Filters: ``customer``, ``customer_company``, ``ticket_source``, ``ticket_reaction_time``,
+  ``ticket_first_response_time``, ``ticket_resolve_time`` and ``vote``.
+* **CRM**: links to contacts and deals are issue custom fields of the contact, company or deal format and are
+  read and written through ``custom_fields`` with the contact or deal ids as values.
 
 Expert plugin extensions
 ------------------------

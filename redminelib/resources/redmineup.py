@@ -310,8 +310,11 @@ class Ticket(BaseResource):
 
     @classmethod
     def decode(cls, attr, value, manager):
+        # The plugin compares the source with strings, an integer silently falls back to web
         if attr == 'source' and isinstance(value, str) and value.lower() in cls.sources:
-            return attr, cls.sources[value.lower()]
+            return attr, str(cls.sources[value.lower()])
+        elif attr == 'source' and isinstance(value, int) and not isinstance(value, bool):
+            return attr, str(value)
         elif attr == 'cc_address' and isinstance(value, (list, tuple)):
             return attr, ','.join(value)
 

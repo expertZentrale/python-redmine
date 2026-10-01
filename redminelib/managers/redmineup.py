@@ -8,11 +8,12 @@ from . import ResourceManager
 
 class ContactManager(ResourceManager):
     def _move_avatar(self, request, container):
-        # The plugin replaces the previous avatar only when the new one comes in top-level attachments
+        # The plugin replaces the previous avatar only when the new one comes in top-level attachments,
+        # which it iterates as a form style hash, an array makes it crash after saving
         avatar = request[container].pop('avatar', None)
 
         if avatar is not None:
-            request.setdefault('attachments', []).append(avatar)
+            request['attachments'] = {'1': avatar}
 
         return request
 
@@ -58,6 +59,10 @@ class TicketManager(ResourceManager):
             ticket['ticket_time'] = ticket.pop('ticket_time')
 
         return request
+
+    def _process_update_response(self, request, response):
+        # Ticket update answers with the ticket, Pro Edition returned True
+        return True if response is not None else response
 
 
 class AgileSprintManager(ResourceManager):

@@ -54,7 +54,8 @@ Features
 --------
 
 * Supports 100% of Redmine API
-* Supports external Redmine plugins API, including ``redmine_expert_helpdesk`` and ``redmine_expert_agile``
+* Supports external Redmine plugins API: ``redmine_expert_helpdesk``, ``redmine_expert_agile`` and the RedmineUP
+  CRM, Helpdesk, Agile, Checklists and Questions plugins
 * Supports Python 3.10 - 3.14 and PyPy3
 * Supports different request engines
 * Extendable via custom resources and custom request engines
