@@ -553,7 +553,11 @@ class BaseResource(metaclass=Registrar):
             _str_ = _str_[:-1]
             _repr_ = _repr_[:-1]
 
-        return _str_ or [str(_repr_[0])] if target == 'str' else _repr_
+        # Nested references often contain only an id, e.g. {'project': {'id': 1}}
+        if not _repr_ and self._decoded_attrs.get(self.internal_id_key) is not None:
+            _repr_ = [self._decoded_attrs[self.internal_id_key]]
+
+        return _str_ or [str(value) for value in _repr_[:1]] if target == 'str' else _repr_
 
     def __str__(self):
         """
@@ -568,7 +572,7 @@ class BaseResource(metaclass=Registrar):
         values = self._representation('repr')
         view = f'<redminelib.resources.{self.__class__.__name__}'
 
-        if isinstance(values[0], int):
+        if values and isinstance(values[0], int):
             view += f' #{values.pop(0)}'
 
         if len(values) > 0:

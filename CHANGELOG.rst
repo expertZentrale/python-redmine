@@ -23,6 +23,12 @@ is unchanged, so it is a drop-in replacement for ``python-redmine`` 2.5.0.
   on issue creation
 - Support for the ``redmine_expert_agile`` plugin: ``ExpertAgileSprint`` and ``ExpertAgileData`` resources
 
+**Bugfixes**:
+
+- API key authentication, impersonation and engine-wide ``requests`` params were silently dropped from every
+  request since the unreleased upstream change that moved session options into per-request kwargs
+- ``repr()``/``str()`` raised ``IndexError`` for resources that only contain an id, e.g. ``{'project': {'id': 1}}``
+
 2.6.0 (never released upstream, included in 3.0.0)
 ++++++++++++++++++++++++++++++++++++++++++++++++++
 

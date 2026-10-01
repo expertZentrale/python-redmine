@@ -26,6 +26,34 @@ class BaseEngineTestCase(BaseRedmineTestCase):
         self.response.json.return_value = {'success': True}
         self.assertEqual(self.redmine.engine.request('get', self.url)['success'], True)
 
+    def test_request_sends_engine_headers_and_params(self):
+        redmine = Redmine(self.url, key='123', impersonate='jsmith', requests={'params': {'foo': 'bar'}})
+        self.response.json.return_value = {'success': True}
+        redmine.engine.request('get', self.url, headers={'X-Foo': '1'}, params={'limit': 5})
+        kwargs = self.patch_requests.call_args[1]
+        self.assertEqual(
+            kwargs['headers'], {'X-Redmine-API-Key': '123', 'X-Redmine-Switch-User': 'jsmith', 'X-Foo': '1'}
+        )
+        self.assertEqual(kwargs['params'], {'foo': 'bar', 'limit': 5})
+        self.assertEqual(
+            redmine.engine.requests['headers'], {'X-Redmine-API-Key': '123', 'X-Redmine-Switch-User': 'jsmith'}
+        )
+        self.assertEqual(redmine.engine.requests['params'], {'foo': 'bar'})
+
+    def test_request_sends_api_key_with_json_body(self):
+        redmine = Redmine(self.url, key='123')
+        self.response.content = ''
+        redmine.engine.request('put', self.url, data={'foo': 'bar'})
+        kwargs = self.patch_requests.call_args[1]
+        self.assertEqual(kwargs['headers'], {'X-Redmine-API-Key': '123', 'Content-Type': 'application/json'})
+        self.assertEqual(redmine.engine.requests['headers'], {'X-Redmine-API-Key': '123'})
+
+    def test_request_sends_basic_auth(self):
+        redmine = Redmine(self.url, username='john', password='qwerty')
+        self.response.json.return_value = {'success': True}
+        redmine.engine.request('get', self.url)
+        self.assertEqual(self.patch_requests.call_args[1]['auth'], ('john', 'qwerty'))
+
     def test_successful_response_via_put_method(self):
         self.response.status_code = 200
         self.response.content = ''

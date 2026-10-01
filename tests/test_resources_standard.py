@@ -17,6 +17,20 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
         self.assertEqual(project['id'], 1)
         self.assertEqual(project['name'], 'Foo')
 
+    def test_repr_of_id_only_reference(self):
+        self.response.json.return_value = {'version': {'id': 1, 'name': 'Foo', 'project': {'id': 2}}}
+        project = self.redmine.version.get(1).project
+        self.assertEqual(repr(project), '<redminelib.resources.Project #2>')
+        self.assertEqual(str(project), '2')
+
+    def test_repr_of_empty_new_resource(self):
+        project = self.redmine.project.new()
+        self.assertEqual(repr(project), '<redminelib.resources.Project #0 "">')
+        self.redmine.raise_attr_exception = False
+        version = self.redmine.version.to_resource({'created_on': '2026-01-01T10:00:00Z'})
+        self.assertEqual(repr(version), '<redminelib.resources.Version>')
+        self.assertEqual(str(version), '')
+
     def test_supports_url_retrieval(self):
         self.response.json.return_value = responses['project']['get']
         self.assertEqual(self.redmine.project.get(1).url, f'{self.url}/projects/foo')

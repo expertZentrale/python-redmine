@@ -60,7 +60,14 @@ class BaseEngine:
         :param data: (required). Data to send in the body of the request.
         :type data: dict, bytes or file-like object
         """
-        kwargs = dict(self.requests, **{'data': data or {}, 'params': params or {}, 'headers': headers or {}})
+        # Engine-wide headers/params (API key, impersonation, ...) must be merged with, not replaced by,
+        # the per-request ones, fresh dicts also make sure neither of them is mutated below
+        kwargs = dict(
+            self.requests,
+            data=data or {},
+            params=dict(self.requests.get('params', {}), **(params or {})),
+            headers=dict(self.requests.get('headers', {}), **(headers or {})),
+        )
 
         if method in ('post', 'put', 'patch') and 'Content-Type' not in kwargs['headers']:
             kwargs['data'] = json.dumps(data)
