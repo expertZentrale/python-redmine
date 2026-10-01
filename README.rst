@@ -164,6 +164,15 @@ Releasing
 The release workflow checks that the tag matches the package version, runs the tests, builds the sdist and
 wheel and publishes a GitHub release with the changelog notes and both files attached.
 
+Acknowledgements
+----------------
+
+A big thank you to `Maxim Tepkeev <https://github.com/maxtepkeev>`__, who created Python-Redmine and maintained
+it from 2014 to 2024. His work made a well-designed, thoroughly tested and extensively documented library
+available to everyone. This fork only exists because his foundation was solid enough to build on, and the
+vast majority of its code is still his. Thanks as well to everyone who contributed to the
+`original project <https://github.com/maxtepkeev/python-redmine>`__.
+
 Copyright and License
 ---------------------
 
