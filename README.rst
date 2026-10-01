@@ -65,12 +65,83 @@ Features
 Installation
 ------------
 
-Uninstall ``python-redmine`` first if present, both distributions provide the ``redminelib`` package:
+Uninstall ``python-redmine`` first if present, both distributions provide the ``redminelib`` package.
+Then install a released version, either the wheel attached to the
+`GitHub release <https://github.com/expertZentrale/python-redmine/releases>`__ or straight from the tag:
 
 .. code-block:: bash
 
    $ pip uninstall python-redmine
-   $ pip install git+https://github.com/expertZentrale/python-redmine.git@master
+   $ pip install https://github.com/expertZentrale/python-redmine/releases/download/v3.0.0/python_redmine_expert-3.0.0-py3-none-any.whl
+   # or
+   $ pip install "python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.0.0"
+
+In a ``requirements.txt`` or ``pyproject.toml`` pin the tag the same way:
+
+.. code-block:: text
+
+   python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.0.0
+
+Usage
+-----
+
+Connect with an API key (*My account* → *API access key*, the REST web service has to be enabled under
+*Administration* → *Settings* → *API*):
+
+.. code-block:: python
+
+   from redminelib import Redmine
+
+   redmine = Redmine('https://redmine.example.com', key='<api key>')
+   issue = redmine.issue.get(42, include=['journals'])
+   issue.save(notes='Looked into it', status_id=2)
+
+``redmine_expert_helpdesk`` (>= 0.20.1):
+
+.. code-block:: python
+
+   ticket = redmine.helpdesk_ticket.create(
+       project_id='support', tracker_id=3, subject='Printer on fire',
+       description='Please help', contact_email='jane@example.com', contact_name='Jane Doe',
+   )
+   ticket.contact, ticket.sla, ticket.messages          # contact, SLA state, mail history
+   ticket.save(notes='Replaced toner', status_id=2)
+
+   redmine.helpdesk_contact.filter(project_id='support', search='acme')
+   redmine.helpdesk_mailbox.get(7).test_connection()     # {'ok': True, 'message': ..., 'folders': [...]}
+   redmine.helpdesk_project_setting.update('support', sla_enabled=True, sla_reaction_minutes=120)
+
+   # turn a new issue into a ticket and send the initial mail
+   redmine.issue.create(project_id='support', subject='Callback', helpdesk_init={
+       'contact_email': 'jane@example.com', 'mailbox_id': 7, 'send_mail': True,
+   })
+
+``redmine_expert_agile`` (>= 0.6.1):
+
+.. code-block:: python
+
+   import datetime
+
+   sprint = redmine.expert_agile_sprint.create(
+       project_id='scrum', name='Sprint 7',
+       start_date=datetime.date(2026, 10, 5), end_date=datetime.date(2026, 10, 16),
+   )
+   sprint.activate()                                    # status/sharing are plain names: 'active', 'tree', ...
+   redmine.expert_agile_sprint.filter(project_id='scrum')
+
+   redmine.expert_agile_data.update(42, story_points=5, sprint_id=sprint.id)
+   redmine.issue.create(project_id='scrum', subject='New story',
+                        expert_agile_data_attributes={'story_points': 3})
+   redmine.issue.filter(project_id='scrum', story_points='>=3')
+
+See the documentation for every resource, method and parameter.
+
+Documentation
+-------------
+
+The full documentation is in the ``docs`` directory (resources under ``docs/resources``). Build it locally
+with ``pip install -e '.[docs]' && sphinx-build -b html docs docs/_build`` and open
+``docs/_build/index.html``; every CI run also attaches the built HTML as the ``docs-html`` artifact.
 
 Development
 -----------
@@ -83,10 +154,15 @@ Development
    $ ruff check . && ruff format --check .
    $ sphinx-build -b html -n -W docs docs/_build
 
-Documentation
--------------
+Releasing
+---------
 
-Documentation sources live in the ``docs`` directory and can be built with Sphinx as shown above.
+1. Set ``__version__`` in ``redminelib/version.py`` and add the matching ``X.Y.Z (YYYY-MM-DD)`` section to
+   ``CHANGELOG.rst``, merge to ``master``.
+2. ``git tag -a vX.Y.Z -m 'Release X.Y.Z' && git push origin vX.Y.Z``
+
+The release workflow checks that the tag matches the package version, runs the tests, builds the sdist and
+wheel and publishes a GitHub release with the changelog notes and both files attached.
 
 Copyright and License
 ---------------------

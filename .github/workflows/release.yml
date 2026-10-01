@@ -1,0 +1,77 @@
+name: Release
+
+# Builds the sdist and wheel for every pushed vX.Y.Z tag and publishes a GitHub release with
+# the notes of that version from CHANGELOG.rst. Runs on tags only, so a release only happens
+# when a maintainer deliberately pushes one:
+#   1. set __version__ in redminelib/version.py and the CHANGELOG.rst heading, merge to master
+#   2. git tag -a vX.Y.Z -m 'Release X.Y.Z' && git push origin vX.Y.Z
+# The version lives in redminelib/version.py, the workflow only checks that the tag matches.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release ${{ github.ref_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Check tag matches package version
+        id: ver
+        run: |
+          VER="${GITHUB_REF_NAME#v}"
+          PKG=$(python -c "exec(open('redminelib/version.py').read()); print(__version__)")
+          if [ "$VER" != "$PKG" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match redminelib/version.py ($PKG)"
+            exit 1
+          fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          case "$VER" in *-*|*a*|*b*|*rc*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;; *) echo "prerelease=false" >> "$GITHUB_OUTPUT" ;; esac
+
+      - name: Run tests
+        run: |
+          pip install -e .[test]
+          pytest
+
+      - name: Build and check distributions
+        run: |
+          pip install build twine
+          python -m build
+          twine check --strict dist/*
+
+      - name: Extract release notes from CHANGELOG.rst
+        run: |
+          python - "${{ steps.ver.outputs.version }}" > notes.rst <<'EOF'
+          import re, sys
+          version = sys.argv[1]
+          lines = open('CHANGELOG.rst', encoding='utf-8').read().splitlines()
+          start = next((i for i, l in enumerate(lines) if l.startswith(f'{version} (')), None)
+          if start is None:
+              sys.exit(f'No CHANGELOG.rst section for {version}')
+          end = next((i for i in range(start + 2, len(lines)) if re.match(r'^\d+\.\d+\.\d+ \(', lines[i])), len(lines))
+          print('\n'.join(lines[start + 2:end]).strip())
+          EOF
+          cat notes.rst
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          FLAGS=""
+          [ "${{ steps.ver.outputs.prerelease }}" = "true" ] && FLAGS="--prerelease"
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "python-redmine-expert ${{ steps.ver.outputs.version }}" \
+            --notes-file notes.rst $FLAGS

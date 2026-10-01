@@ -11,12 +11,19 @@ Installation
 ------------
 
 The expert fork is distributed as ``python-redmine-expert`` and provides the same ``redminelib`` package
-as upstream ``python-redmine``, so uninstall the latter first if present:
+as upstream ``python-redmine``, so uninstall the latter first if present. Released versions are published
+as `GitHub releases <https://github.com/expertZentrale/python-redmine/releases>`_ with the wheel attached:
 
 .. code-block:: bash
 
    $ pip uninstall python-redmine
-   $ pip install git+https://github.com/expertZentrale/python-redmine.git@master
+   $ pip install https://github.com/expertZentrale/python-redmine/releases/download/v3.0.0/python_redmine_expert-3.0.0-py3-none-any.whl
+
+Or install straight from a tag, which is also the form to use in ``requirements.txt`` or ``pyproject.toml``:
+
+.. code-block:: bash
+
+   $ pip install "python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.0.0"
 
 From a local checkout:
 
