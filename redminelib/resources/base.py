@@ -4,7 +4,7 @@ Defines base Redmine resource class and its infrastructure.
 
 from datetime import date, datetime, timezone
 
-from .. import managers, utilities, exceptions
+from .. import exceptions, managers, utilities
 
 registry = {}
 
@@ -15,6 +15,7 @@ class Registrar(type):
     will be added to a resource registry to be managed by its ResourceManager. Resource classes
     which name starts with Base are considered base classes and not added to the registry.
     """
+
     def __new__(mcs, name, bases, attrs):
         cls = super().__new__(mcs, name, bases, mcs.bulk_update_attrs(attrs))
         mcs.bulk_update_cls_attrs(cls, attrs)
@@ -114,6 +115,7 @@ class BaseResource(metaclass=Registrar):
     """
     Implementation of Redmine resource.
     """
+
     internal_id_key = 'id'
     redmine_version = None
     requirements = []
@@ -295,7 +297,8 @@ class BaseResource(metaclass=Registrar):
             for index, attachment in enumerate(value):
                 if 'token' not in attachment:
                     value[index]['token'] = manager.redmine.upload(
-                        attachment.pop('path', ''), filename=attachment.get('filename'))['token']
+                        attachment.pop('path', ''), filename=attachment.get('filename')
+                    )['token']
 
             return attr, value
         elif attr == 'include' and isinstance(value, (list, tuple)):
@@ -424,7 +427,8 @@ class BaseResource(metaclass=Registrar):
             self.pre_update()
             self.manager.update(self.internal_id, **self._changes)
             self._decoded_attrs['updated_on'] = datetime.now(timezone.utc).strftime(
-                self.manager.redmine.datetime_format)
+                self.manager.redmine.datetime_format
+            )
             self.post_update()
         else:
             self.pre_create()
@@ -568,6 +572,6 @@ class BaseResource(metaclass=Registrar):
             view += f' #{values.pop(0)}'
 
         if len(values) > 0:
-            view += f" \"{' '.join(values)}\""
+            view += f' "{" ".join(values)}"'
 
         return view + '>'

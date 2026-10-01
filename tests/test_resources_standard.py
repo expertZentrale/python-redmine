@@ -1,7 +1,7 @@
-from . import mock, BaseRedmineTestCase
-from .responses import responses
+from redminelib import exceptions, managers, resources, resultsets
 
-from redminelib import resources, managers, resultsets, exceptions
+from . import BaseRedmineTestCase, mock
+from .responses import responses
 
 
 class StandardResourcesTestCase(BaseRedmineTestCase):
@@ -62,6 +62,7 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
 
     def test_supports_setting_of_date_datetime_attributes(self):
         from datetime import date, datetime, timezone
+
         issue = self.redmine.issue.new()
         issue.start_date = date(2014, 3, 9)
         self.assertEqual(issue.start_date, date(2014, 3, 9))
@@ -75,8 +76,9 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
         issue.start_date = datetime(2014, 3, 9, 20, 2, 2, tzinfo=datetime.strptime('+0800', '%z').tzinfo)
         self.assertEqual(issue._decoded_attrs['start_date'], '2014-03-09T12:02:02Z')
         self.assertEqual(issue._changes['start_date'], '2014-03-09T12:02:02Z')
-        self.assertEqual(issue.start_date, datetime(
-            2014, 3, 9, 20, 2, 2, tzinfo=datetime.strptime('+0800', '%z').tzinfo))
+        self.assertEqual(
+            issue.start_date, datetime(2014, 3, 9, 20, 2, 2, tzinfo=datetime.strptime('+0800', '%z').tzinfo)
+        )
 
     def test_supports_setting_of_attributes_via_dict(self):
         project = self.redmine.project.new()
@@ -149,6 +151,7 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
 
     def test_bulk_decode(self):
         from datetime import date, datetime
+
         encoded = {'start_date': date(2014, 3, 9), 'created_at': datetime(2014, 3, 9, 20, 2, 2), 'include': ['a', 'b']}
         decoded = self.redmine.project.resource_class.bulk_decode(encoded, self.redmine.project)
         self.assertEqual(decoded['start_date'], '2014-03-09')
@@ -156,7 +159,8 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
         self.assertEqual(decoded['include'], 'a,b')
 
     def test_bulk_encode(self):
-        from datetime import date, datetime, timezone, timedelta
+        from datetime import date, datetime, timedelta, timezone
+
         decoded = {'start_date': '2014-03-09', 'created_at': '2014-03-09T20:02:02Z'}
         encoded = self.redmine.project.resource_class.bulk_encode(decoded, self.redmine.project)
         self.assertEqual(encoded['start_date'], date(2014, 3, 9))
@@ -164,8 +168,9 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
         self.redmine.timezone = datetime.strptime('+0800', '%z').tzinfo
         encoded = self.redmine.project.resource_class.bulk_encode(decoded, self.redmine.project)
         self.assertEqual(encoded['start_date'], date(2014, 3, 9))
-        self.assertEqual(encoded['created_at'], datetime(
-            2014, 3, 10, 4, 2, 2, tzinfo=timezone(timedelta(seconds=28800))))
+        self.assertEqual(
+            encoded['created_at'], datetime(2014, 3, 10, 4, 2, 2, tzinfo=timezone(timedelta(seconds=28800)))
+        )
 
     def test_resource_dict_is_converted_to_resource_object(self):
         self.response.json.return_value = responses['issue']['get']
@@ -178,8 +183,7 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
         issue = self.redmine.issue.get(1)
         issue._decoded_attrs['custom_fields'] = [{'id': 1, 'name': 'Foo'}, {'id': 2, 'name': 'Bar'}]
         self.assertEqual(
-            repr(issue.custom_fields),
-            '<redminelib.resultsets.ResourceSet object with CustomField resources>'
+            repr(issue.custom_fields), '<redminelib.resultsets.ResourceSet object with CustomField resources>'
         )
 
     def test_dir_returns_resource_attributes(self):
@@ -213,6 +217,7 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
 
     def test_resource_is_picklable(self):
         import pickle
+
         self.response.json.return_value = responses['project']['get']
         project = self.redmine.project.get(1)
         unpickled_project = pickle.loads(pickle.dumps(project))
@@ -255,7 +260,8 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
         self.assertEqual(resources.registry['BazResource']['class'], BazResource)
         self.assertEqual(resources.registry['QuxResource']['attach_includes'], {'bazs': 'BazResource'})
         self.assertEqual(
-            resources.registry['QuxResource']['attach_includes_map'], {('bazs', 'qux_bazs'): 'BazResource'})
+            resources.registry['QuxResource']['attach_includes_map'], {('bazs', 'qux_bazs'): 'BazResource'}
+        )
 
     def test_attach_includes(self):
         class QuxResource(resources.BaseResource):
@@ -305,7 +311,8 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
 
     def test_project_update(self):
         self.response.json.return_value = {
-            'project': {'name': 'Foo', 'id': 1, 'custom_fields': [{'id': 1, 'value': 'foo'}]}}
+            'project': {'name': 'Foo', 'id': 1, 'custom_fields': [{'id': 1, 'value': 'foo'}]}
+        }
         project = self.redmine.project.get(1)
         project.homepage = self.url
         project.parent_id = 3
@@ -455,7 +462,8 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
 
     def test_issue_update(self):
         self.response.json.return_value = {
-            'issue': {'name': 'Foo', 'id': 1, 'custom_fields': [{'id': 1, 'value': 'foo'}]}}
+            'issue': {'name': 'Foo', 'id': 1, 'custom_fields': [{'id': 1, 'value': 'foo'}]}
+        }
         issue = self.redmine.issue.get(1)
         issue.subject = 'Foo'
         issue.description = 'foobar'
@@ -465,6 +473,7 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
 
     def test_issue_copy(self):
         import json
+
         self.response.status_code = 201
         self.response.json.return_value = {'issue': {'subject': 'Foo', 'id': 1, 'project': {'id': 1}}}
         self.redmine.issue.get(1).copy()
@@ -476,6 +485,7 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
 
     def test_issue_copy_via_manager(self):
         import json
+
         self.response.status_code = 201
         self.response.json.return_value = responses['issue']['get']
         self.redmine.issue.copy(1, project_id=1, link_original=False, include=None)
@@ -586,7 +596,8 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
 
     def test_issue_version_can_be_retrieved_via_version_attribute(self):
         self.response.json.return_value = {
-            'issue': {'subject': 'Foo', 'id': 1, 'fixed_version': {'id': 1, 'name': 'Foo'}}}
+            'issue': {'subject': 'Foo', 'id': 1, 'fixed_version': {'id': 1, 'name': 'Foo'}}
+        }
         issue = self.redmine.issue.get(1)
         self.assertIsInstance(issue.version, resources.Version)
 
@@ -731,7 +742,8 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
 
     def test_time_entry_update(self):
         self.response.json.return_value = {
-            'time_entry': {'hours': 2, 'id': 1, 'issue': {'id': 1}, 'activity': {'id': 1}}}
+            'time_entry': {'hours': 2, 'id': 1, 'issue': {'id': 1}, 'activity': {'id': 1}}
+        }
         time_entry = self.redmine.time_entry.get(1)
         time_entry.hours = 3
         time_entry.issue_id = 2
@@ -818,8 +830,7 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
     def test_enumeration_url(self):
         self.response.json.return_value = responses['enumeration']['filter']
         self.assertEqual(
-            self.redmine.enumeration.filter(resource='time_entry_activities')[0].url,
-            f'{self.url}/enumerations/1/edit'
+            self.redmine.enumeration.filter(resource='time_entry_activities')[0].url, f'{self.url}/enumerations/1/edit'
         )
 
     def test_attachment_version(self):
@@ -912,10 +923,14 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
     @mock.patch('os.path.getsize', mock.Mock())
     @mock.patch('redminelib.open', mock.mock_open(), create=True)
     def test_file_create(self):
-        self.set_patch_side_effect([
-            mock.Mock(status_code=201, history=[], **{'json.return_value': {'upload': {'id': 1, 'token': '1.1234'}}}),
-            mock.Mock(status_code=200, history=[], content='')
-        ])
+        self.set_patch_side_effect(
+            [
+                mock.Mock(
+                    status_code=201, history=[], **{'json.return_value': {'upload': {'id': 1, 'token': '1.1234'}}}
+                ),
+                mock.Mock(status_code=200, history=[], content=''),
+            ]
+        )
         f = self.redmine.file.create(project_id=1, filename='foo.jpg', path='foo', return_complete=False)
         self.assertEqual(f.id, 1)
         self.assertRaises(exceptions.ResourceAttrError, lambda: f.filename)
@@ -1023,8 +1038,9 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
         self.assertEqual(self.redmine.wiki_page.delete('Foo', project_id=1), True)
 
     def test_wiki_page_update(self):
-        self.response.json.return_value = \
-            {'wiki_page': {'title': 'Foo', 'version': 1, 'created_on': '2012-06-27T12:48:15Z'}}
+        self.response.json.return_value = {
+            'wiki_page': {'title': 'Foo', 'version': 1, 'created_on': '2012-06-27T12:48:15Z'}
+        }
         wiki_page = self.redmine.wiki_page.get('Foo', project_id=1)
         wiki_page.text = 'Foo'
         self.assertIsInstance(wiki_page.save(), resources.WikiPage)
@@ -1409,8 +1425,10 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
         self.redmine.ver = (5, 0, 0)
         self.assertEqual(self.redmine.user.all().manager.url, f'{self.url}/users.json?status=')
         self.redmine.ver = (5, 1, 0)
-        self.assertEqual(self.redmine.user.all().manager.url, f'{self.url}/users.json?f[]=status_id&'
-                                            f'op[status_id]==&v[status_id][]=1&v[status_id][]=2&v[status_id][]=3')
+        self.assertEqual(
+            self.redmine.user.all().manager.url,
+            f'{self.url}/users.json?f[]=status_id&op[status_id]==&v[status_id][]=1&v[status_id][]=2&v[status_id][]=3',
+        )
         self.redmine.ver = (6, 0, 0)
         self.assertEqual(self.redmine.user.all().manager.url, f'{self.url}/users.json?status=*')
 
@@ -1431,6 +1449,7 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
 
     def test_user_create_with_send_information(self):
         import json
+
         self.response.status_code = 201
         self.response.json.return_value = responses['user']['get']
         self.redmine.user.create(firstname='John', lastname='Smith', send_information=True)
@@ -1456,6 +1475,7 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
 
     def test_user_update_with_send_information(self):
         import json
+
         self.response.json.return_value = responses['user']['get']
         self.redmine.user.update(1, firstname='John', lastname='Smith', send_information=True)
         self.assertEqual(json.loads(self.patch_requests.call_args[1]['data'])['send_information'], True)
@@ -1648,10 +1668,12 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
         self.assertEqual(news.title, 'Foo')
 
     def test_news_create_empty_response(self):
-        self.set_patch_side_effect([
-            mock.Mock(status_code=204, history=[], content=''),
-            mock.Mock(status_code=201, history=[], **{'json.return_value': responses['news']['filter']})
-        ])
+        self.set_patch_side_effect(
+            [
+                mock.Mock(status_code=204, history=[], content=''),
+                mock.Mock(status_code=201, history=[], **{'json.return_value': responses['news']['filter']}),
+            ]
+        )
         news = self.redmine.news.create(project_id=1, title='Foo')
         self.assertEqual(news.title, 'Foo')
 
@@ -1818,7 +1840,8 @@ class StandardResourcesTestCase(BaseRedmineTestCase):
 
     def test_custom_field_returns_single_tracker_instead_of_multiple_trackers(self):
         self.response.json.return_value = {
-            'custom_fields': [{'name': 'Foo', 'id': 1, 'trackers': {'tracker': {'id': 1, 'name': 'Bar'}}}]}
+            'custom_fields': [{'name': 'Foo', 'id': 1, 'trackers': {'tracker': {'id': 1, 'name': 'Bar'}}}]
+        }
         fields = self.redmine.custom_field.all()
         self.assertEqual(fields[0].trackers[0].id, 1)
         self.assertEqual(fields[0].trackers[0].name, 'Bar')

@@ -104,7 +104,7 @@ class BaseEngine:
             if limit > self.chunk:
                 bulk_params = []
 
-                for num in range(limit - self.chunk, 0, -self.chunk):
+                for _ in range(limit - self.chunk, 0, -self.chunk):
                     offset += self.chunk
                     limit -= self.chunk
                     bulk_params.append(dict(params, offset=offset, limit=limit))
@@ -118,7 +118,7 @@ class BaseEngine:
         # doesn't support this feature on Redmine level
         else:
             total_count = len(response[container])
-            results = response[container][offset:None if limit == 0 else limit + offset]
+            results = response[container][offset : None if limit == 0 else limit + offset]
 
         return results, total_count
 
@@ -151,10 +151,13 @@ class BaseEngine:
                 if (url1[:5] == 'http:' and url2[:6] == 'https:') or (url1[:6] == 'https:' and url2[:5] == 'http:'):
                     raise exceptions.HTTPProtocolError
                 else:
-                    warnings.warn('Redirect detected during request-response, normally there should be no redirects, '
-                                  'so please check your Redmine URL for things like prepending www which redirects to '
-                                  'a no www domain and vice versa or using an old domain which redirects to a new one',
-                                  exceptions.PerformanceWarning)
+                    warnings.warn(
+                        'Redirect detected during request-response, normally there should be no redirects, '
+                        'so please check your Redmine URL for things like prepending www which redirects to '
+                        'a no www domain and vice versa or using an old domain which redirects to a new one',
+                        exceptions.PerformanceWarning,
+                        stacklevel=2,
+                    )
 
         status_code = response.status_code
 

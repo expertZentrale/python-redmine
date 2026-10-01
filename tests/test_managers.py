@@ -1,9 +1,9 @@
 import warnings
 
-from . import mock, BaseRedmineTestCase
-from .responses import responses
+from redminelib import exceptions, managers, resources, resultsets
 
-from redminelib import managers, resources, resultsets, exceptions
+from . import BaseRedmineTestCase, mock
+from .responses import responses
 
 
 class FooResource(resources.Project):
@@ -32,10 +32,9 @@ class ResourceManagerTestCase(BaseRedmineTestCase):
         self.assertEqual(project.id, 1)
 
     def test_convert_dicts_to_resource_set_object(self):
-        resourceset = self.redmine.project.to_resource_set([
-            {'name': 'Foo', 'identifier': 'foo', 'id': 1},
-            {'name': 'Bar', 'identifier': 'bar', 'id': 2}
-        ])
+        resourceset = self.redmine.project.to_resource_set(
+            [{'name': 'Foo', 'identifier': 'foo', 'id': 1}, {'name': 'Bar', 'identifier': 'bar', 'id': 2}]
+        )
         self.assertIsInstance(resourceset, resultsets.ResourceSet)
         self.assertEqual(resourceset[0].name, 'Foo')
         self.assertEqual(resourceset[0].identifier, 'foo')
@@ -79,6 +78,7 @@ class ResourceManagerTestCase(BaseRedmineTestCase):
 
     def test_decode_params(self):
         from datetime import date, datetime
+
         time_entries = self.redmine.time_entry.filter(from_date=date(2014, 3, 9), to_date=date(2014, 3, 10))
         self.assertEqual(time_entries.manager.params['from'], '2014-03-09')
         self.assertEqual(time_entries.manager.params['to'], '2014-03-10')
@@ -108,7 +108,7 @@ class ResourceManagerTestCase(BaseRedmineTestCase):
         self.response.status_code = 201
         self.response.json.return_value = {
             'upload': {'id': 1, 'token': '123456'},
-            'issue': {'subject': 'Foo', 'project_id': 1, 'id': 1}
+            'issue': {'subject': 'Foo', 'project_id': 1, 'id': 1},
         }
         issue = self.redmine.issue.create(project_id=1, subject='Foo', uploads=[{'path': 'foo'}])
         self.assertEqual(issue.project_id, 1)
@@ -116,10 +116,11 @@ class ResourceManagerTestCase(BaseRedmineTestCase):
 
     def test_create_resource_with_stream_uploads(self):
         from io import StringIO
+
         self.response.status_code = 201
         self.response.json.return_value = {
             'upload': {'id': 1, 'token': '123456'},
-            'issue': {'subject': 'Foo', 'project_id': 1, 'id': 1}
+            'issue': {'subject': 'Foo', 'project_id': 1, 'id': 1},
         }
         stream = StringIO(b'\xcf\x86oo'.decode('utf-8'))
         with warnings.catch_warnings(record=True) as w:
@@ -150,18 +151,27 @@ class ResourceManagerTestCase(BaseRedmineTestCase):
     @mock.patch('os.path.getsize', mock.Mock())
     @mock.patch('redminelib.open', mock.mock_open(), create=True)
     def test_update_resource_with_uploads(self):
-        self.set_patch_side_effect([
-            mock.Mock(status_code=201, history=[], **{'json.return_value': {'upload': {'id': 1, 'token': '123456'}}}),
-            mock.Mock(status_code=200, history=[], content='')
-        ])
+        self.set_patch_side_effect(
+            [
+                mock.Mock(
+                    status_code=201, history=[], **{'json.return_value': {'upload': {'id': 1, 'token': '123456'}}}
+                ),
+                mock.Mock(status_code=200, history=[], content=''),
+            ]
+        )
         self.assertEqual(self.redmine.issue.update(1, subject='Bar', uploads=[{'path': 'foo'}]), True)
 
     def test_update_resource_with_stream_uploads(self):
         from io import StringIO
-        self.set_patch_side_effect([
-            mock.Mock(status_code=201, history=[], **{'json.return_value': {'upload': {'id': 1, 'token': '123456'}}}),
-            mock.Mock(status_code=200, history=[], content='')
-        ])
+
+        self.set_patch_side_effect(
+            [
+                mock.Mock(
+                    status_code=201, history=[], **{'json.return_value': {'upload': {'id': 1, 'token': '123456'}}}
+                ),
+                mock.Mock(status_code=200, history=[], content=''),
+            ]
+        )
         stream = StringIO(b'\xcf\x86oo'.decode('utf-8'))
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter('always')
@@ -237,6 +247,7 @@ class ResourceManagerTestCase(BaseRedmineTestCase):
 
     def test_manager_is_picklable(self):
         import pickle
+
         project = self.redmine.project
         project.url = 'foo'
         project.params = {'foo': 'bar'}
@@ -254,14 +265,21 @@ class ResourceManagerTestCase(BaseRedmineTestCase):
         self.assertRaises(exceptions.ResourceNotFoundError, lambda: list(self.redmine.project.all()))
 
     def test_resource_requirements_exception(self):
-        FooResource.requirements = ('foo plugin', ('bar plugin', (1, 2, 3)),)
+        FooResource.requirements = (
+            'foo plugin',
+            ('bar plugin', (1, 2, 3)),
+        )
         self.response.status_code = 404
         self.assertRaises(exceptions.ResourceRequirementsError, lambda: self.redmine.foo_resource.get(1))
         self.assertRaises(exceptions.ResourceRequirementsError, lambda: list(self.redmine.foo_resource.all()))
 
     def test_search(self):
-        self.response.json.return_value = {'total_count': 1, 'offset': 0, 'limit': 0, 'results': [
-            {'id': 1, 'title': 'Foo', 'type': 'issue'}]}
+        self.response.json.return_value = {
+            'total_count': 1,
+            'offset': 0,
+            'limit': 0,
+            'results': [{'id': 1, 'title': 'Foo', 'type': 'issue'}],
+        }
         results = self.redmine.issue.search('foo')
         self.assertIsInstance(results['issues'], resultsets.ResourceSet)
         self.assertEqual(len(results['issues']), 1)

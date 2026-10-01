@@ -2,17 +2,18 @@
 Defines ResourceSet objects that can be used to represent a set of resources.
 """
 
-import operator
 import functools
 import itertools
+import operator
 
-from . import lookups, exceptions
+from . import exceptions, lookups
 
 
 class BaseResourceSet:
     """
     Defines basic functionality for a ResourceSet object.
     """
+
     def __init__(self, manager, resources=None, limit=0, offset=0, total_count=None):
         """
         :param managers.ResourceManager manager: (required). ResourceManager object.
@@ -57,7 +58,8 @@ class BaseResourceSet:
             raise exceptions.ExportNotSupported
 
         url = self.manager.redmine.url + self.manager.resource_class.query_all_export.format(
-                format=fmt, **self.manager.params)
+            format=fmt, **self.manager.params
+        )
 
         params = dict(self.manager.resource_class.query_all_export.formatter.unused_kwargs, encoding=encoding)
 
@@ -99,8 +101,14 @@ class BaseResourceSet:
         :type resources: list or tuple
         :param dict kwargs: (optional). Additional keyword arguments if any.
         """
-        return cls(self.manager, resources=resources, limit=self.limit, offset=self.offset,
-                   total_count=self._total_count, **kwargs)
+        return cls(
+            self.manager,
+            resources=resources,
+            limit=self.limit,
+            offset=self.offset,
+            total_count=self._total_count,
+            **kwargs,
+        )
 
     def __getitem__(self, item):
         """
@@ -133,7 +141,8 @@ class BaseResourceSet:
 
             try:
                 self._resources, self._total_count = self.manager.redmine.engine.bulk_request(
-                    'get', self.manager.url, self.manager.container, **self.manager.params)
+                    'get', self.manager.url, self.manager.container, **self.manager.params
+                )
             except exceptions.ResourceNotFoundError as e:
                 if self.manager.resource_class.requirements:
                     raise exceptions.ResourceRequirementsError(self.manager.resource_class.requirements)
@@ -178,6 +187,7 @@ class ResourceSet(BaseResourceSet):
     """
     Represents a set of Redmine resources as objects.
     """
+
     def get(self, resource_id, default=None):
         """
         Returns a single Resource from a ResourceSet by resource id.

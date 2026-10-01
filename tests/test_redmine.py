@@ -1,8 +1,8 @@
 import warnings
 
-from . import mock, BaseRedmineTestCase, Redmine
+from redminelib import engines, exceptions, resultsets
 
-from redminelib import engines, resultsets, exceptions
+from . import BaseRedmineTestCase, Redmine, mock
 
 
 class RedmineTestCase(BaseRedmineTestCase):
@@ -17,9 +17,17 @@ class RedmineTestCase(BaseRedmineTestCase):
 
     def test_set_attributes_through_kwargs(self):
         from datetime import timezone
+
         FooEngine = type('FooEngine', (engines.BaseEngine,), {'create_session': lambda obj, **kwargs: None})
-        redmine = Redmine(self.url, version='1.0.0', date_format='format', datetime_format='format',
-                          timezone='+0000', raise_attr_exception=False, engine=FooEngine)
+        redmine = Redmine(
+            self.url,
+            version='1.0.0',
+            date_format='format',
+            datetime_format='format',
+            timezone='+0000',
+            raise_attr_exception=False,
+            engine=FooEngine,
+        )
         self.assertEqual(redmine.url, self.url)
         self.assertEqual(redmine.ver, (1, 0, 0))
         self.assertEqual(redmine.timezone, timezone.utc)
@@ -73,6 +81,7 @@ class RedmineTestCase(BaseRedmineTestCase):
 
     def test_successful_filestream_upload(self):
         from io import StringIO
+
         self.response.status_code = 201
         self.response.json.return_value = {'upload': {'id': 1, 'token': '456789'}}
         with warnings.catch_warnings(record=True) as w:
@@ -97,7 +106,12 @@ class RedmineTestCase(BaseRedmineTestCase):
         self.assertRaises(exceptions.FileUrlError, lambda: self.redmine.download('https://bad_url', '/some/path'))
 
     def test_file_upload_no_file_exception(self):
-        self.assertRaises(exceptions.NoFileError, lambda: self.redmine.upload('foo',))
+        self.assertRaises(
+            exceptions.NoFileError,
+            lambda: self.redmine.upload(
+                'foo',
+            ),
+        )
 
     def test_file_upload_file_object_exception(self):
         f = type('FileObject', (), {'close': lambda obj: None})()
@@ -105,7 +119,12 @@ class RedmineTestCase(BaseRedmineTestCase):
 
     def test_file_upload_not_supported_exception(self):
         self.redmine.ver = (1, 0, 0)
-        self.assertRaises(exceptions.VersionMismatchError, lambda: self.redmine.upload('foo',))
+        self.assertRaises(
+            exceptions.VersionMismatchError,
+            lambda: self.redmine.upload(
+                'foo',
+            ),
+        )
 
     def test_auth(self):
         self.redmine.username = 'john'
@@ -115,14 +134,19 @@ class RedmineTestCase(BaseRedmineTestCase):
         self.assertEqual(self.redmine.auth().firstname, 'John')
 
     def test_search(self):
-        self.response.json.return_value = {'total_count': 6, 'offset': 0, 'limit': 0, 'results': [
-            {'id': 1, 'title': 'Foo', 'type': 'issue'},
-            {'id': 2, 'title': 'Bar', 'type': 'issue closed'},
-            {'id': 3, 'title': 'Foo', 'type': 'project'},
-            {'id': 4, 'title': 'Foo', 'type': 'news'},
-            {'id': 5, 'title': 'Foo', 'type': 'wiki-page'},
-            {'id': 6, 'title': 'Foo', 'type': 'document'},
-        ]}
+        self.response.json.return_value = {
+            'total_count': 6,
+            'offset': 0,
+            'limit': 0,
+            'results': [
+                {'id': 1, 'title': 'Foo', 'type': 'issue'},
+                {'id': 2, 'title': 'Bar', 'type': 'issue closed'},
+                {'id': 3, 'title': 'Foo', 'type': 'project'},
+                {'id': 4, 'title': 'Foo', 'type': 'news'},
+                {'id': 5, 'title': 'Foo', 'type': 'wiki-page'},
+                {'id': 6, 'title': 'Foo', 'type': 'document'},
+            ],
+        }
         results = self.redmine.search('foo')
         self.assertIsInstance(results['issues'], resultsets.ResourceSet)
         self.assertEqual(len(results['issues']), 2)
@@ -136,8 +160,12 @@ class RedmineTestCase(BaseRedmineTestCase):
         self.assertEqual(len(results['unknown']['document']), 1)
 
     def test_search_without_unknown(self):
-        self.response.json.return_value = {'total_count': 1, 'offset': 0, 'limit': 0, 'results': [
-            {'id': 1, 'title': 'Foo', 'type': 'issue'}]}
+        self.response.json.return_value = {
+            'total_count': 1,
+            'offset': 0,
+            'limit': 0,
+            'results': [{'id': 1, 'title': 'Foo', 'type': 'issue'}],
+        }
         results = self.redmine.search('foo')
         self.assertIsInstance(results['issues'], resultsets.ResourceSet)
         self.assertEqual(len(results['issues']), 1)
@@ -151,6 +179,7 @@ class RedmineTestCase(BaseRedmineTestCase):
 
     def test_redmine_is_picklable(self):
         import pickle
+
         redmine = pickle.loads(pickle.dumps(self.redmine))
         self.assertEqual(redmine.url, self.redmine.url)
         self.assertEqual(redmine.ver, self.redmine.ver)

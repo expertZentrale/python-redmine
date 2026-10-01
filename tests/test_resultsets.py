@@ -1,6 +1,6 @@
-from . import mock, BaseRedmineTestCase
-
 from redminelib import exceptions
+
+from . import BaseRedmineTestCase, mock
 
 response = {
     'issues': [
@@ -17,8 +17,9 @@ class ResultSetTestCase(BaseRedmineTestCase):
         self.response.json = mock.Mock(return_value=response)
 
     def test_has_custom_repr(self):
-        self.assertEqual(repr(self.redmine.issue.all()),
-                         '<redminelib.resultsets.ResourceSet object with Issue resources>')
+        self.assertEqual(
+            repr(self.redmine.issue.all()), '<redminelib.resultsets.ResourceSet object with Issue resources>'
+        )
 
     def test_offset_limit_all(self):
         self.response.json.return_value = dict(total_count=3, limit=0, offset=0, **response)
@@ -31,7 +32,11 @@ class ResultSetTestCase(BaseRedmineTestCase):
 
     def test_offset_limit(self):
         self.response.json.return_value = {
-            'total_count': 2, 'limit': 300, 'offset': 1, 'issues': response['issues'][1:3]}
+            'total_count': 2,
+            'limit': 300,
+            'offset': 1,
+            'issues': response['issues'][1:3],
+        }
         issues = self.redmine.issue.all()[1:300]
         self.assertEqual(issues.limit, 300)
         self.assertEqual(issues.offset, 1)
@@ -119,6 +124,7 @@ class ResultSetTestCase(BaseRedmineTestCase):
 
     def test_resourceset_is_picklable(self):
         import pickle
+
         issues = self.redmine.issue.all()
         unpickled_issues = pickle.loads(pickle.dumps(issues))
         self.assertEqual(issues[0]['subject'], unpickled_issues[0]['subject'])
@@ -224,6 +230,7 @@ class ResultSetTestCase(BaseRedmineTestCase):
 
     def test_filter_bad_lookup_class_definition(self):
         from redminelib import lookups
+
         type('Foo', (lookups.Lookup,), {'lookup_name': 'foo'})
         self.assertRaises(NotImplementedError, lambda: self.redmine.issue.all().filter(id__foo=1))
         del lookups.registry['foo']

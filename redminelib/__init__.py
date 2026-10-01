@@ -2,14 +2,14 @@
 Provides public API.
 """
 
-import os
-import io
-import inspect
-import warnings
-import datetime
 import contextlib
+import datetime
+import inspect
+import io
+import os
+import warnings
 
-from . import managers, exceptions, engines, utilities, resources
+from . import engines, exceptions, managers, resources, utilities
 from .version import __version__
 
 
@@ -17,6 +17,7 @@ class Redmine:
     """
     Entry point for all requests.
     """
+
     def __init__(self, url, **kwargs):
         """
         :param string url: (required). Redmine location.
@@ -89,7 +90,8 @@ class Redmine:
         """
         engine = self.engine
         self.engine = engine.__class__(
-            requests=utilities.merge_dicts(engine.requests, options.pop('requests', {})), **options)
+            requests=utilities.merge_dicts(engine.requests, options.pop('requests', {})), **options
+        )
 
         try:
             yield self
@@ -123,9 +125,12 @@ class Redmine:
             # We need to send bytes over the socket, so in case a file-like object contains a unicode
             # object underneath, we need to convert it to bytes, otherwise we'll get an exception
             if isinstance(c, str):
-                warnings.warn('File-like object contains unicode, hence an additional step is performed to convert '
-                              'its content to bytes, please consider switching to bytes to eliminate this warning',
-                              exceptions.PerformanceWarning)
+                warnings.warn(
+                    'File-like object contains unicode, hence an additional step is performed to convert '
+                    'its content to bytes, please consider switching to bytes to eliminate this warning',
+                    exceptions.PerformanceWarning,
+                    stacklevel=2,
+                )
                 f = io.BytesIO(f.read().encode('utf-8'))
 
             stream = f

@@ -2,8 +2,8 @@
 Defines standard Redmine resources managers.
 """
 
-from . import ResourceManager
 from .. import exceptions
+from . import ResourceManager
 
 
 class ProjectManager(ResourceManager):
@@ -13,7 +13,8 @@ class ProjectManager(ResourceManager):
                 raise exceptions.VersionMismatchError(f'Project {attr}')
 
             return lambda resource_id: self.redmine.engine.request(
-                'put', f'{self.redmine.url}{self.resource_class.query_one.format(resource_id)[:-5]}/{attr}.json')
+                'put', f'{self.redmine.url}{self.resource_class.query_one.format(resource_id)[:-5]}/{attr}.json'
+            )
 
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{attr}'")
 
@@ -71,8 +72,10 @@ class UserManager(ResourceManager):
             if self.redmine.ver >= (5, 1, 2):
                 resourceset.manager.url = f'{resourceset.manager.url}*'
             elif self.redmine.ver in ((5, 1, 0), (5, 1, 1)):
-                resourceset.manager.url = (f'{resourceset.manager.url[:-7]}f[]=status_id&'
-                                           f'op[status_id]==&v[status_id][]=1&v[status_id][]=2&v[status_id][]=3')
+                resourceset.manager.url = (
+                    f'{resourceset.manager.url[:-7]}f[]=status_id&'
+                    f'op[status_id]==&v[status_id][]=1&v[status_id][]=2&v[status_id][]=3'
+                )
 
         return resourceset
 

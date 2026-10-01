@@ -45,6 +45,7 @@ class ResourceQueryFormatter(string.Formatter):
     """
     Quotes query and memorizes all arguments, used during string formatting.
     """
+
     def __init__(self):
         self.used_kwargs = {}
         self.unused_kwargs = {}
@@ -64,6 +65,7 @@ class ResourceQueryStr(str):
     """
     Extends default string with additional formatting capabilities.
     """
+
     formatter = ResourceQueryFormatter()
 
     def format(self, *args, **kwargs):

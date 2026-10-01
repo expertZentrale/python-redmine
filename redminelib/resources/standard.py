@@ -2,8 +2,8 @@
 Defines standard Redmine resources and resource mappings.
 """
 
+from .. import exceptions, managers
 from . import BaseResource
-from .. import managers, exceptions
 
 
 class Project(BaseResource):
@@ -23,8 +23,16 @@ class Project(BaseResource):
 
     _repr = [['id', 'name'], ['title']]
     _includes = ['trackers', 'issue_categories', 'enabled_modules', 'time_entry_activities', 'issue_custom_fields']
-    _relations = ['wiki_pages', 'memberships', 'issue_categories', 'time_entries', 'versions',
-                  'news', 'issues', 'files']
+    _relations = [
+        'wiki_pages',
+        'memberships',
+        'issue_categories',
+        'time_entries',
+        'versions',
+        'news',
+        'issues',
+        'files',
+    ]
     _unconvertible = BaseResource._unconvertible + ['identifier', 'status']
     _update_readonly = BaseResource._update_readonly + ['identifier']
     _resource_map = {'default_version': 'Version', 'default_assignee': 'User'}
@@ -124,6 +132,7 @@ class Issue(BaseResource):
         """
         An issue watcher implementation.
         """
+
         def __init__(self, issue):
             self._redmine = issue.manager.redmine
             self._issue_id = issue.internal_id
@@ -310,7 +319,8 @@ class WikiPage(BaseResource):
 
     def export_url(self, fmt):
         return self.manager.redmine.url + self.query_one_export.format(
-            self.internal_id, project_id=self.project_id, format=fmt)
+            self.internal_id, project_id=self.project_id, format=fmt
+        )
 
     @property
     def project_id(self):
@@ -468,6 +478,7 @@ class Group(BaseResource):
         """
         A group user implementation.
         """
+
         def __init__(self, group):
             self._redmine = group.manager.redmine
             self._group_id = group.internal_id
@@ -559,7 +570,8 @@ class Query(BaseResource):
     @property
     def url(self):
         return self.manager.redmine.url + self.query_url.format(
-            self._decoded_attrs.get('project_id', 0), self.internal_id)
+            self._decoded_attrs.get('project_id', 0), self.internal_id
+        )
 
 
 class CustomField(BaseResource):

@@ -1,8 +1,8 @@
 import warnings
 
-from . import mock, BaseRedmineTestCase, Redmine
-
 from redminelib import engines, exceptions
+
+from . import BaseRedmineTestCase, Redmine, mock
 
 
 class BaseEngineTestCase(BaseRedmineTestCase):
@@ -47,8 +47,9 @@ class BaseEngineTestCase(BaseRedmineTestCase):
 
     def test_process_bulk_request_not_implemented_exception(self):
         self.redmine.engine = type('FooEngine', (engines.BaseEngine,), {'create_session': lambda obj, **kwargs: None})()
-        self.assertRaises(NotImplementedError, lambda: self.redmine.engine.process_bulk_request(
-            'get', '/foo', 'bar', {}))
+        self.assertRaises(
+            NotImplementedError, lambda: self.redmine.engine.process_bulk_request('get', '/foo', 'bar', {})
+        )
 
     def test_conflict_error_exception(self):
         self.response.status_code = 409
@@ -106,6 +107,7 @@ class BaseEngineTestCase(BaseRedmineTestCase):
 
     def test_engine_is_picklable(self):
         import pickle
+
         self.redmine.engine.requests['params']['key'] = '123'
         self.redmine.engine.requests['headers']['X-Redmine-Switch-User'] = 'jsmith'
         redmine = pickle.loads(pickle.dumps(self.redmine))

@@ -2,13 +2,14 @@
 Defines base Redmine resource manager class and its infrastructure.
 """
 
-from .. import resultsets, exceptions
+from .. import exceptions, resultsets
 
 
 class ResourceManager:
     """
     Manages given Redmine resource class with the help of redmine object.
     """
+
     def __init__(self, redmine, resource_class):
         """
         :param redmine.Redmine redmine: (required). Redmine object.
