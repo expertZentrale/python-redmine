@@ -37,6 +37,64 @@ class HelpdeskMailboxManager(ResourceManager):
         return result['connection_test'] if isinstance(result, dict) else result
 
 
+class HelpdeskKbEntryManager(ResourceManager):
+    def _process_update_response(self, request, response):
+        if isinstance(response, dict) and self.container in response:
+            return self.to_resource(response[self.container])
+
+        return response
+
+    def _post(self, path, container, **params):
+        response = self.redmine.engine.request('post', f'{self.redmine.url}{path}', params=params)
+        return response.get(container) if isinstance(response, dict) else response
+
+    def _curate(self, entry_id, action):
+        self.container = self.resource_class.container_one
+        entry = self._post(f'/helpdesk/kb_entries/{entry_id}/{action}.json', self.container)
+        return self.to_resource(entry) if isinstance(entry, dict) else entry
+
+    def approve(self, entry_id):
+        """
+        Approves a knowledge base entry, which embeds it into the vector store, and returns the
+        updated entry, its ``vector_sync`` tells whether that worked.
+
+        :param int entry_id: (required). Entry id.
+        """
+        return self._curate(entry_id, 'approve')
+
+    def reject(self, entry_id):
+        """
+        Rejects a knowledge base entry, which removes it from the vector store, and returns the
+        updated entry.
+
+        :param int entry_id: (required). Entry id.
+        """
+        return self._curate(entry_id, 'reject')
+
+    def reindex(self, project_id):
+        """
+        Queues the rebuild of a project's vector index and returns the job dict with ``action``,
+        ``queued`` and ``count`` (approved entries).
+
+        :param project_id: (required). Id or identifier of the project.
+        :type project_id: int or string
+        """
+        return self._post(f'/projects/{project_id}/helpdesk/kb_entries/reindex.json', 'kb_job')
+
+    def reextract(self, project_id, all=False):
+        """
+        Queues the AI re-extraction of a project's entries and returns the job dict with ``action``,
+        ``queued`` and ``count``, ``queued`` is False when there is nothing to re-extract.
+
+        :param project_id: (required). Id or identifier of the project.
+        :type project_id: int or string
+        :param bool all: (optional). Re-extract every eligible entry, not only those at another
+         detail level.
+        """
+        params = {'all': 1} if all else {}
+        return self._post(f'/projects/{project_id}/helpdesk/kb_entries/reextract.json', 'kb_job', **params)
+
+
 class HelpdeskProjectSettingManager(ResourceManager):
     def _prepare_update_request(self, request):
         request = super()._prepare_update_request(request)

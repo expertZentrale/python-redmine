@@ -6,6 +6,7 @@ from .. import managers
 from . import BaseResource
 
 HELPDESK_REQUIREMENTS = [('redmine_expert_helpdesk', (0, 20, 0))]
+HELPDESK_KB_REQUIREMENTS = [('redmine_expert_helpdesk', (0, 23, 0))]
 AGILE_REQUIREMENTS = [('redmine_expert_agile', (0, 6, 0))]
 
 
@@ -156,6 +157,70 @@ class HelpdeskProjectSetting(BaseResource):
 
     def is_new(self):
         return 'project' not in self._decoded_attrs
+
+
+class HelpdeskKbEntry(BaseResource):
+    redmine_version = (5, 0, 0)
+    requirements = HELPDESK_KB_REQUIREMENTS
+    container_one = 'helpdesk_kb_entry'
+    container_filter = 'helpdesk_kb_entries'
+    container_create = 'helpdesk_kb_entry'
+    container_update = 'helpdesk_kb_entry'
+    query_one = '/helpdesk/kb_entries/{}.json'
+    query_filter = '/projects/{project_id}/helpdesk/kb_entries.json'
+    query_create = '/projects/{project_id}/helpdesk/kb_entries.json'
+    query_update = '/helpdesk/kb_entries/{}.json'
+    query_delete = '/helpdesk/kb_entries/{}.json'
+    manager_class = managers.HelpdeskKbEntryManager
+
+    _repr = [['id', 'status']]
+    _unconvertible = BaseResource._unconvertible + ['problem', 'solution']
+    _create_readonly = BaseResource._create_readonly + [
+        'extract_detail',
+        'embed_model',
+        'indexed',
+        'input_tokens',
+        'output_tokens',
+        'curated',
+        'curated_at',
+        'updated_by',
+        'vector_sync',
+    ]
+    _update_readonly = _create_readonly[:]
+    _resource_map = {'project': 'Project', 'issue': 'Issue', 'updated_by': 'User'}
+    _single_attr_id_map = {'issue_id': 'issue'}
+
+    def __getattr__(self, attr):
+        if attr in ('approve', 'reject'):
+            return lambda: self._refresh(getattr(self.manager, attr)(self.internal_id))
+
+        return super().__getattr__(attr)
+
+    def save(self, **attrs):
+        """
+        Creates or updates a HelpdeskKbEntry. Updates take over the entry the plugin returns, so
+        ``vector_sync`` tells whether the vector store took the change.
+
+        :param dict attrs: (optional). Attrs to be set for a resource before create/update operation.
+        """
+        if self.is_new():
+            return super().save(**attrs)
+
+        for attr in attrs:
+            setattr(self, attr, attrs[attr])
+
+        self.pre_update()
+        self._refresh(self.manager.update(self.internal_id, **self._changes))
+        self.post_update()
+        self._changes = {}
+        return self
+
+    def _refresh(self, resource):
+        if isinstance(resource, BaseResource):
+            self._encoded_attrs = {}
+            self._decoded_attrs = resource.raw()
+
+        return self
 
 
 class ExpertAgileSprint(BaseResource):

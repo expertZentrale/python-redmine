@@ -27,6 +27,7 @@ class ExpertResourcesTestCase(BaseRedmineTestCase):
             ('helpdesk_ticket', 'redmine_expert_helpdesk'),
             ('helpdesk_mailbox', 'redmine_expert_helpdesk'),
             ('helpdesk_project_setting', 'redmine_expert_helpdesk'),
+            ('helpdesk_kb_entry', 'redmine_expert_helpdesk'),
             ('expert_agile_data', 'redmine_expert_agile'),
         ):
             with self.assertRaises(exceptions.ResourceRequirementsError) as cm:
@@ -281,6 +282,120 @@ class ExpertResourcesTestCase(BaseRedmineTestCase):
         self.assertRaises(exceptions.ResourceBadMethodError, lambda: manager.all())
         self.assertRaises(exceptions.ResourceBadMethodError, lambda: manager.create(foo=1))
         self.assertRaises(exceptions.ResourceBadMethodError, lambda: manager.delete(1))
+
+    # HelpdeskKbEntry
+
+    def test_helpdesk_kb_entry_get(self):
+        self.response.json.return_value = responses['helpdesk_kb_entry']['get']
+        entry = self.redmine.helpdesk_kb_entry.get(17)
+        self.assertRequest('get', '/helpdesk/kb_entries/17.json')
+        self.assertIsInstance(entry.issue, resources.Issue)
+        self.assertEqual(entry.issue.id, 4711)
+        self.assertIsInstance(entry.updated_by, resources.User)
+        self.assertIsInstance(entry.curated_at, datetime.datetime)
+        self.assertEqual(entry.solution, '2024-01-01 driver reinstalled')
+        self.assertEqual(repr(entry), '<redminelib.resources.HelpdeskKbEntry #17 "approved">')
+
+    def test_helpdesk_kb_entry_filter(self):
+        self.response.json.return_value = responses['helpdesk_kb_entry']['filter']
+        entries = self.redmine.helpdesk_kb_entry.filter(project_id=1, status='approved,pending', q='printer')
+        self.assertEqual(len(entries), 2)
+        self.assertRequest('get', '/projects/1/helpdesk/kb_entries.json')
+        self.assertEqual(self.patch_requests.call_args[1]['params']['q'], 'printer')
+
+    def test_helpdesk_kb_entry_create(self):
+        self.response.status_code = 201
+        self.response.json.return_value = responses['helpdesk_kb_entry']['get']
+        entry = self.redmine.helpdesk_kb_entry.create(
+            project_id=1, issue_id=4711, problem='Printer prints nothing', status='approved'
+        )
+        self.assertRequest('post', '/projects/1/helpdesk/kb_entries.json')
+        self.assertEqual(
+            self.request_data(),
+            {'helpdesk_kb_entry': {'issue_id': 4711, 'problem': 'Printer prints nothing', 'status': 'approved'}},
+        )
+        self.assertEqual(entry.vector_sync, 'indexed')
+
+    def test_helpdesk_kb_entry_update_returns_entry(self):
+        self.response.json.return_value = responses['helpdesk_kb_entry']['get']
+        entry = self.redmine.helpdesk_kb_entry.update(17, solution='Driver 4.2')
+        self.assertRequest('put', '/helpdesk/kb_entries/17.json')
+        self.assertEqual(self.request_data(), {'helpdesk_kb_entry': {'solution': 'Driver 4.2'}})
+        self.assertIsInstance(entry, resources.HelpdeskKbEntry)
+        self.assertEqual(entry.vector_sync, 'indexed')
+
+    def test_helpdesk_kb_entry_save_takes_over_response(self):
+        self.response.json.return_value = responses['helpdesk_kb_entry']['filter']
+        entry = self.redmine.helpdesk_kb_entry.filter(project_id=1)[1]
+        self.assertEqual(entry.status, 'pending')
+        self.response.json.return_value = responses['helpdesk_kb_entry']['get']
+        entry.save(problem='Printer prints nothing')
+        self.assertRequest('put', '/helpdesk/kb_entries/18.json')
+        self.assertEqual(self.request_data(), {'helpdesk_kb_entry': {'problem': 'Printer prints nothing'}})
+        self.assertEqual(entry.vector_sync, 'indexed')
+        self.assertEqual(entry.status, 'approved')
+        self.assertEqual(entry._changes, {})
+
+    def test_helpdesk_kb_entry_update_without_body(self):
+        self.response.status_code = 204
+        self.response.content = ''
+        self.assertEqual(self.redmine.helpdesk_kb_entry.update(17, status='pending'), True)
+
+    def test_helpdesk_kb_entry_save_new(self):
+        self.response.status_code = 201
+        self.response.json.return_value = responses['helpdesk_kb_entry']['get']
+        entry = self.redmine.helpdesk_kb_entry.new()
+        entry.project_id = 1
+        entry.issue_id = 4711
+        entry.problem = 'Printer prints nothing'
+        entry.save()
+        self.assertRequest('post', '/projects/1/helpdesk/kb_entries.json')
+        self.assertEqual(entry.id, 17)
+
+    def test_helpdesk_kb_entry_readonly(self):
+        self.response.json.return_value = responses['helpdesk_kb_entry']['get']
+        entry = self.redmine.helpdesk_kb_entry.get(17)
+
+        with self.assertRaises(exceptions.ReadonlyAttrError):
+            entry.indexed = False
+
+    def test_helpdesk_kb_entry_approve_reject(self):
+        self.response.json.return_value = responses['helpdesk_kb_entry']['get']
+        entry = self.redmine.helpdesk_kb_entry.get(17)
+        self.assertEqual(entry.status, 'approved')  # read values are cached and must be dropped
+        self.response.json.return_value = responses['helpdesk_kb_entry']['rejected']
+        self.assertIs(entry.reject(), entry)
+        self.assertRequest('post', '/helpdesk/kb_entries/17/reject.json')
+        self.assertEqual(entry.status, 'rejected')
+        self.assertEqual(entry.vector_sync, 'removed')
+
+        self.response.json.return_value = responses['helpdesk_kb_entry']['get']
+        approved = self.redmine.helpdesk_kb_entry.approve(17)
+        self.assertRequest('post', '/helpdesk/kb_entries/17/approve.json')
+        self.assertIsInstance(approved, resources.HelpdeskKbEntry)
+        self.assertEqual(approved.status, 'approved')
+
+    def test_helpdesk_kb_entry_delete(self):
+        self.response.status_code = 204
+        self.response.content = ''
+        self.assertEqual(self.redmine.helpdesk_kb_entry.delete(17), True)
+        self.assertRequest('delete', '/helpdesk/kb_entries/17.json')
+
+    def test_helpdesk_kb_entry_reindex_reextract(self):
+        self.response.json.return_value = responses['helpdesk_kb_entry']['reindex']
+        job = self.redmine.helpdesk_kb_entry.reindex('support')
+        self.assertRequest('post', '/projects/support/helpdesk/kb_entries/reindex.json')
+        self.assertEqual(job, {'action': 'reindex', 'queued': True, 'count': 42})
+
+        self.response.json.return_value = responses['helpdesk_kb_entry']['reextract']
+        job = self.redmine.helpdesk_kb_entry.reextract(1, all=True)
+        self.assertRequest('post', '/projects/1/helpdesk/kb_entries/reextract.json', params={'all': 1})
+        self.assertFalse(job['queued'])
+
+    def test_helpdesk_kb_entry_reindex_not_configured(self):
+        self.response.status_code = 422
+        self.response.json.return_value = {'errors': ['The knowledge base is not configured']}
+        self.assertRaises(exceptions.ValidationError, lambda: self.redmine.helpdesk_kb_entry.reindex(1))
 
     # Core issue extensions
 

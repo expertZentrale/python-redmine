@@ -112,6 +112,12 @@ Connect with an API key (*My account* → *API access key*, the REST web service
    redmine.helpdesk_mailbox.get(7).test_connection()     # {'ok': True, 'message': ..., 'folders': [...]}
    redmine.helpdesk_project_setting.update('support', sla_enabled=True, sla_reaction_minutes=120)
 
+   # knowledge base (>= 0.23.0): every write reports whether the vector store took it
+   entry = redmine.helpdesk_kb_entry.update(17, solution='Installed driver 4.2')
+   entry.vector_sync                                     # 'indexed'
+   redmine.helpdesk_kb_entry.filter(project_id='support', status='pending')
+   redmine.helpdesk_kb_entry.reindex('support')          # {'action': 'reindex', 'queued': True, ...}
+
    # turn a new issue into a ticket and send the initial mail
    redmine.issue.create(project_id='support', subject='Callback', helpdesk_init={
        'contact_email': 'jane@example.com', 'mailbox_id': 7, 'send_mail': True,

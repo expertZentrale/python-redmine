@@ -7,6 +7,7 @@ from .expert import (
     ExpertAgileData,
     ExpertAgileSprint,
     HelpdeskContact,
+    HelpdeskKbEntry,
     HelpdeskMailbox,
     HelpdeskProjectSetting,
     HelpdeskTicket,
