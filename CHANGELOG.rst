@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+3.3.0 (unreleased)
+++++++++++++++++++
+
+**New Features**:
+
+- ``HelpdeskKbEntry`` resource for the knowledge base of ``redmine_expert_helpdesk`` >= 0.23.0: get, filter,
+  create, update, delete, ``approve()``/``reject()`` and the project-wide ``reindex()``/``reextract()`` jobs.
+  Updates return the entry the plugin sends back, so ``vector_sync`` tells whether the vector store took
+  the change
+
 3.2.0 (2026-10-01)
 ++++++++++++++++++
 

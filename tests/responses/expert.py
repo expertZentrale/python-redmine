@@ -119,6 +119,43 @@ responses = {
             }
         },
     },
+    'helpdesk_kb_entry': {
+        'get': {
+            'helpdesk_kb_entry': {
+                'id': 17,
+                'project': {'id': 1, 'name': 'Support'},
+                'issue': {'id': 4711, 'subject': 'Printer offline'},
+                'status': 'approved',
+                'problem': 'Printer prints nothing',
+                'solution': '2024-01-01 driver reinstalled',
+                'extract_detail': 'general',
+                'embed_model': 'bge-m3',
+                'indexed': True,
+                'input_tokens': 812,
+                'output_tokens': 96,
+                'curated': True,
+                'curated_at': '2026-10-12T09:14:03Z',
+                'updated_by': {'id': 2, 'name': 'John Smith'},
+                'vector_sync': 'indexed',
+                'created_on': '2026-10-12T09:14:03Z',
+                'updated_on': '2026-10-12T09:14:03Z',
+            }
+        },
+        'filter': {
+            'helpdesk_kb_entries': [
+                {'id': 17, 'issue': {'id': 4711}, 'status': 'approved'},
+                {'id': 18, 'issue': {'id': 4712}, 'status': 'pending'},
+            ],
+            'total_count': 2,
+            'offset': 0,
+            'limit': 25,
+        },
+        'rejected': {
+            'helpdesk_kb_entry': {'id': 17, 'issue': {'id': 4711}, 'status': 'rejected', 'vector_sync': 'removed'}
+        },
+        'reindex': {'kb_job': {'action': 'reindex', 'queued': True, 'count': 42}},
+        'reextract': {'kb_job': {'action': 'reextract', 'queued': False, 'count': 0}},
+    },
     'expert_agile_sprint': {
         'get': {
             'expert_agile_sprint': {
