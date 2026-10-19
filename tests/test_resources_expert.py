@@ -352,6 +352,26 @@ class ExpertResourcesTestCase(BaseRedmineTestCase):
         self.assertRequest('post', '/projects/1/helpdesk/kb_entries.json')
         self.assertEqual(entry.id, 17)
 
+    def test_helpdesk_kb_entry_save_new_drops_cached_values(self):
+        self.response.status_code = 201
+        self.response.json.return_value = responses['helpdesk_kb_entry']['get']
+        entry = self.redmine.helpdesk_kb_entry.new()
+        entry.project_id = 1
+        entry.issue_id = 4711
+        self.assertEqual(entry.issue.id, 4711)  # cached, without the subject
+        entry.save()
+        self.assertEqual(entry.issue.subject, 'Printer offline')
+
+    def test_helpdesk_kb_entry_curation_discards_unsaved_changes(self):
+        self.response.json.return_value = responses['helpdesk_kb_entry']['get']
+        entry = self.redmine.helpdesk_kb_entry.get(17)
+        entry.status = 'pending'
+        self.response.json.return_value = responses['helpdesk_kb_entry']['rejected']
+        entry.reject()
+        self.assertEqual(entry.status, 'rejected')
+        entry.save(solution='new')
+        self.assertEqual(self.request_data(), {'helpdesk_kb_entry': {'solution': 'new'}})
+
     def test_helpdesk_kb_entry_readonly(self):
         self.response.json.return_value = responses['helpdesk_kb_entry']['get']
         entry = self.redmine.helpdesk_kb_entry.get(17)

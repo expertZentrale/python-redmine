@@ -192,7 +192,9 @@ class HelpdeskKbEntry(BaseResource):
 
     def __getattr__(self, attr):
         if attr in ('approve', 'reject'):
-            return lambda: self._refresh(getattr(self.manager, attr)(self.internal_id))
+            # The entry the plugin returns replaces the local state, unsaved changes included,
+            # so a later save() can't replay an edit that the curation superseded
+            return lambda: self._refresh(getattr(self.manager, attr)(self.internal_id), discard_changes=True)
 
         return super().__getattr__(attr)
 
@@ -204,7 +206,9 @@ class HelpdeskKbEntry(BaseResource):
         :param dict attrs: (optional). Attrs to be set for a resource before create/update operation.
         """
         if self.is_new():
-            return super().save(**attrs)
+            super().save(**attrs)
+            self._encoded_attrs = {}
+            return self
 
         for attr in attrs:
             setattr(self, attr, attrs[attr])
@@ -215,10 +219,13 @@ class HelpdeskKbEntry(BaseResource):
         self._changes = {}
         return self
 
-    def _refresh(self, resource):
+    def _refresh(self, resource, discard_changes=False):
         if isinstance(resource, BaseResource):
             self._encoded_attrs = {}
             self._decoded_attrs = resource.raw()
+
+            if discard_changes:
+                self._changes = {}
 
         return self
 

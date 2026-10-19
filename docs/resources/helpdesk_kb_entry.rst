@@ -201,7 +201,8 @@ approve / reject
    :param int entry_id: (required). Entry id.
    :return: :ref:`Resource` object
 
-Both are also available on the resource, which then takes over the returned entry:
+Both are also available on the resource, which then takes over the returned entry. Unsaved changes of
+the resource are discarded, as the curation supersedes them:
 
 .. code-block:: python
 
