@@ -56,6 +56,7 @@ responses = {
                     {
                         'id': 9,
                         'direction': 'in',
+                        'message_id': 'abc123@mail.example.com',
                         'subject': 'Printer on fire',
                         'sent_at': '2026-01-01T10:00:00Z',
                         'recipient_to': 'support@example.com',
@@ -155,6 +156,40 @@ responses = {
         },
         'reindex': {'kb_job': {'action': 'reindex', 'queued': True, 'count': 42}},
         'reextract': {'kb_job': {'action': 'reextract', 'queued': False, 'count': 0}},
+    },
+    'helpdesk_message': {
+        'filter': {
+            'helpdesk_messages': [
+                {
+                    'id': 9,
+                    'issue': {'id': 42, 'subject': 'Printer on fire'},
+                    'project': {'id': 1, 'name': 'Support'},
+                    'direction': 'in',
+                    'message_id': 'abc123@mail.example.com',
+                    'subject': 'Printer on fire',
+                    'sent_at': '2026-01-01T10:00:00Z',
+                    'recipient_to': 'support@example.com',
+                    'recipient_cc': None,
+                    'recipient_bcc': None,
+                    'contact': {'id': 1},
+                    'mailbox': {'id': 7},
+                    'created_on': '2026-01-01T10:00:05Z',
+                },
+                {
+                    'id': 12,
+                    'issue': {'id': 42, 'subject': 'Printer on fire'},
+                    'project': {'id': 1, 'name': 'Support'},
+                    'direction': 'out',
+                    'message_id': 'reply-1@helpdesk.example.com',
+                    'subject': 'Re: Printer on fire',
+                    'sent_at': '2026-01-01T10:30:00Z',
+                    'created_on': '2026-01-01T10:30:00Z',
+                },
+            ],
+            'total_count': 2,
+            'offset': 0,
+            'limit': 25,
+        },
     },
     'expert_agile_sprint': {
         'get': {

@@ -95,6 +95,25 @@ class HelpdeskKbEntryManager(ResourceManager):
         return self._post(f'/projects/{project_id}/helpdesk/kb_entries/reextract.json', 'kb_job', **params)
 
 
+class HelpdeskMessageManager(ResourceManager):
+    def filter(self, **filters):
+        """
+        Returns a ResourceSet of the mail log entries with the given Message-IDs, across every project
+        the user can see unless ``project_id`` narrows it.
+
+        :param message_id: (required). One Message-ID or a list of them, with or without angle brackets,
+         at most 50 per call.
+        :type message_id: string or list
+        :param project_id: (optional). Id or identifier of a project.
+        :type project_id: int or string
+        """
+        # Repeated query keys would reach Rails as one value, the plugin takes a comma-separated list
+        if isinstance(filters.get('message_id'), (list, tuple, set)):
+            filters['message_id'] = ','.join(str(message_id) for message_id in filters['message_id'])
+
+        return super().filter(**filters)
+
+
 class HelpdeskProjectSettingManager(ResourceManager):
     def _prepare_update_request(self, request):
         request = super()._prepare_update_request(request)

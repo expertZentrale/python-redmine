@@ -41,6 +41,11 @@ class ExpertResourcesTestCase(BaseRedmineTestCase):
         with self.assertRaises(exceptions.ResourceRequirementsError):
             list(self.redmine.helpdesk_ticket.filter(project_id=1))
 
+        with self.assertRaises(exceptions.ResourceRequirementsError) as cm:
+            list(self.redmine.helpdesk_message.filter(message_id='abc123@mail.example.com'))
+
+        self.assertIn('redmine_expert_helpdesk >= 0.26.0', str(cm.exception))
+
     def test_redmine_version(self):
         self.redmine.ver = (4, 2, 0)
 
@@ -450,6 +455,50 @@ class ExpertResourcesTestCase(BaseRedmineTestCase):
         self.assertEqual(
             self.request_data()['issue']['expert_agile_data_attributes'], {'story_points': 5, 'sprint_id': 3}
         )
+
+    # HelpdeskMessage
+
+    def test_helpdesk_message_filter(self):
+        self.response.json.return_value = responses['helpdesk_message']['filter']
+        messages = self.redmine.helpdesk_message.filter(message_id='<abc123@mail.example.com>')
+        self.assertEqual([m.id for m in messages], [9, 12])
+        self.assertRequest('get', '/helpdesk/messages.json')
+        self.assertEqual(self.patch_requests.call_args[1]['params']['message_id'], '<abc123@mail.example.com>')
+        message = messages[0]
+        self.assertEqual(message.message_id, 'abc123@mail.example.com')
+        self.assertEqual(message.direction, 'in')
+        self.assertIsInstance(message.issue, resources.Issue)
+        self.assertEqual(message.issue.id, 42)
+        self.assertIsInstance(message.project, resources.Project)
+        self.assertIsInstance(message.contact, resources.HelpdeskContact)
+        self.assertIsInstance(message.mailbox, resources.HelpdeskMailbox)
+        self.assertIsInstance(message.sent_at, datetime.datetime)
+        self.assertEqual(repr(message), '<redminelib.resources.HelpdeskMessage #9 "abc123@mail.example.com">')
+
+    def test_helpdesk_message_filter_joins_a_list(self):
+        self.response.json.return_value = responses['helpdesk_message']['filter']
+        list(
+            self.redmine.helpdesk_message.filter(
+                message_id=['abc123@mail.example.com', '<reply-1@helpdesk.example.com>'], project_id='support'
+            )
+        )
+        params = self.patch_requests.call_args[1]['params']
+        self.assertEqual(params['message_id'], 'abc123@mail.example.com,<reply-1@helpdesk.example.com>')
+        self.assertEqual(params['project_id'], 'support')
+        self.assertRequest('get', '/helpdesk/messages.json')
+
+    def test_helpdesk_message_has_no_single_view(self):
+        # get() falls back to the lookup, so it needs the Message-ID too
+        with self.assertRaises(exceptions.ResourceNoFiltersProvidedError):
+            self.redmine.helpdesk_message.get(9)
+
+        self.response.json.return_value = responses['helpdesk_message']['filter']
+        message = self.redmine.helpdesk_message.get(12, message_id='reply-1@helpdesk.example.com')
+        self.assertEqual(message.direction, 'out')
+        self.assertRequest('get', '/helpdesk/messages.json')
+
+        with self.assertRaises(exceptions.ResourceBadMethodError):
+            self.redmine.helpdesk_message.create(message_id='abc123@mail.example.com')
 
     # ExpertAgileSprint
 

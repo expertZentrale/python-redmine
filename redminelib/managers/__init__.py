@@ -6,6 +6,7 @@ from .base import ResourceManager
 from .expert import (
     HelpdeskKbEntryManager,
     HelpdeskMailboxManager,
+    HelpdeskMessageManager,
     HelpdeskProjectSettingManager,
     HelpdeskTicketManager,
 )

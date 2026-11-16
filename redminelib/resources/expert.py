@@ -7,6 +7,7 @@ from . import BaseResource
 
 HELPDESK_REQUIREMENTS = [('redmine_expert_helpdesk', (0, 20, 0))]
 HELPDESK_KB_REQUIREMENTS = [('redmine_expert_helpdesk', (0, 23, 0))]
+HELPDESK_MESSAGES_REQUIREMENTS = [('redmine_expert_helpdesk', (0, 26, 0))]
 AGILE_REQUIREMENTS = [('redmine_expert_agile', (0, 6, 0))]
 
 
@@ -228,6 +229,29 @@ class HelpdeskKbEntry(BaseResource):
                 self._changes = {}
 
         return self
+
+
+class HelpdeskMessage(BaseResource):
+    redmine_version = (5, 0, 0)
+    requirements = HELPDESK_MESSAGES_REQUIREMENTS
+    container_filter = 'helpdesk_messages'
+    query_filter = '/helpdesk/messages.json'
+    manager_class = managers.HelpdeskMessageManager
+
+    _repr = [['id', 'message_id'], ['id']]
+    _unconvertible = BaseResource._unconvertible + [
+        'subject',
+        'message_id',
+        'recipient_to',
+        'recipient_cc',
+        'recipient_bcc',
+    ]
+    _resource_map = {
+        'project': 'Project',
+        'issue': 'Issue',
+        'contact': 'HelpdeskContact',
+        'mailbox': 'HelpdeskMailbox',
+    }
 
 
 class ExpertAgileSprint(BaseResource):

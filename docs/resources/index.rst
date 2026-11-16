@@ -85,6 +85,7 @@ redmine_expert_helpdesk
    helpdesk_mailbox
    helpdesk_project_setting
    helpdesk_kb_entry
+   helpdesk_message
 
 redmine_expert_agile
 --------------------

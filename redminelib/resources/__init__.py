@@ -9,6 +9,7 @@ from .expert import (
     HelpdeskContact,
     HelpdeskKbEntry,
     HelpdeskMailbox,
+    HelpdeskMessage,
     HelpdeskProjectSetting,
     HelpdeskTicket,
 )

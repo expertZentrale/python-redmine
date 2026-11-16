@@ -98,6 +98,8 @@ get
    'running'
    >>> ticket.messages[0]['direction']
    'in'
+   >>> ticket.messages[0]['message_id']  # plugin >= 0.26.0, without angle brackets
+   'abc123@mail.example.com'
 
 .. hint::
 
@@ -141,7 +143,8 @@ filter
 .. hint::
 
    For richer filtering use the issue resource, the plugin adds ``helpdesk_kunde``, ``helpdesk_sla_reaction``,
-   ``helpdesk_sla_solution`` and ``helpdesk_awaiting_agent`` issue filters, see :doc:`issue`.
+   ``helpdesk_sla_solution`` and ``helpdesk_awaiting_agent`` issue filters, see :doc:`issue`. To find the
+   ticket of a mail by its Message-ID use :doc:`helpdesk_message`.
 
 Update methods
 --------------
