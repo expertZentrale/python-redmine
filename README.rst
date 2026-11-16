@@ -73,15 +73,15 @@ Then install a released version, either the wheel attached to the
 .. code-block:: bash
 
    $ pip uninstall python-redmine
-   $ pip install https://github.com/expertZentrale/python-redmine/releases/download/v3.2.0/python_redmine_expert-3.2.0-py3-none-any.whl
+   $ pip install https://github.com/expertZentrale/python-redmine/releases/download/v3.4.0/python_redmine_expert-3.4.0-py3-none-any.whl
    # or
-   $ pip install "python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.2.0"
+   $ pip install "python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.4.0"
 
 In a ``requirements.txt`` or ``pyproject.toml`` pin the tag the same way:
 
 .. code-block:: text
 
-   python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.2.0
+   python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.4.0
 
 Usage
 -----
@@ -117,6 +117,10 @@ Connect with an API key (*My account* → *API access key*, the REST web service
    entry.vector_sync                                     # 'indexed'
    redmine.helpdesk_kb_entry.filter(project_id='support', status='pending')
    redmine.helpdesk_kb_entry.reindex('support')          # {'action': 'reindex', 'queued': True, ...}
+
+   # which ticket did a mail go into (>= 0.26.0)
+   for message in redmine.helpdesk_message.filter(message_id=['abc123@mail.example.com', 'def456@example.com']):
+       message.message_id, message.direction, message.issue.id
 
    # turn a new issue into a ticket and send the initial mail
    redmine.issue.create(project_id='support', subject='Callback', helpdesk_init={

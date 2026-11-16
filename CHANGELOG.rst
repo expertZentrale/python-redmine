@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+3.4.0 (2026-11-16)
+++++++++++++++++++
+
+**New Features**:
+
+- ``HelpdeskMessage`` resource for the Message-ID lookup of ``redmine_expert_helpdesk`` >= 0.26.0:
+  ``redmine.helpdesk_message.filter(message_id=[...])`` returns the mail log entries of those mails with their
+  ticket and project, across every project the user can see. A list of Message-IDs is sent comma-separated
+
 3.3.0 (2026-10-19)
 ++++++++++++++++++
 

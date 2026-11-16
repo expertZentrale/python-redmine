@@ -17,13 +17,13 @@ as `GitHub releases <https://github.com/expertZentrale/python-redmine/releases>`
 .. code-block:: bash
 
    $ pip uninstall python-redmine
-   $ pip install https://github.com/expertZentrale/python-redmine/releases/download/v3.2.0/python_redmine_expert-3.2.0-py3-none-any.whl
+   $ pip install https://github.com/expertZentrale/python-redmine/releases/download/v3.4.0/python_redmine_expert-3.4.0-py3-none-any.whl
 
 Or install straight from a tag, which is also the form to use in ``requirements.txt`` or ``pyproject.toml``:
 
 .. code-block:: bash
 
-   $ pip install "python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.2.0"
+   $ pip install "python-redmine-expert @ git+https://github.com/expertZentrale/python-redmine.git@v3.4.0"
 
 From a local checkout:
 
