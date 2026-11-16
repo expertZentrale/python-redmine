@@ -2,6 +2,7 @@
 Defines managers for resources of the redmine_expert_helpdesk and redmine_expert_agile plugins.
 """
 
+from .. import exceptions
 from . import ResourceManager
 
 
@@ -110,6 +111,10 @@ class HelpdeskMessageManager(ResourceManager):
         # Repeated query keys would reach Rails as one value, the plugin takes a comma-separated list
         if isinstance(filters.get('message_id'), (list, tuple, set)):
             filters['message_id'] = ','.join(str(message_id) for message_id in filters['message_id'])
+
+        # The plugin only looks messages up, it has no list of the whole mail log
+        if filters and not str(filters.get('message_id') or '').strip(', '):
+            raise exceptions.ValidationError('message_id argument is required')
 
         return super().filter(**filters)
 

@@ -500,6 +500,13 @@ class ExpertResourcesTestCase(BaseRedmineTestCase):
         with self.assertRaises(exceptions.ResourceBadMethodError):
             self.redmine.helpdesk_message.create(message_id='abc123@mail.example.com')
 
+    def test_helpdesk_message_filter_requires_a_message_id(self):
+        for filters in ({'project_id': 'support'}, {'message_id': ''}, {'message_id': []}, {'message_id': [' ']}):
+            with self.assertRaises(exceptions.ValidationError):
+                self.redmine.helpdesk_message.filter(**filters)
+
+        self.patch_requests.assert_not_called()
+
     # ExpertAgileSprint
 
     def test_expert_agile_sprint_get(self):
